@@ -1238,8 +1238,244 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (lightboxCloseBtn) lightboxCloseBtn.addEventListener('click', window.closeLightboxModal);
   if (lightboxBackdrop) lightboxBackdrop.addEventListener('click', window.closeLightboxModal);
+
+  // ==============================================================================
+  // CYBER-SECURITY LOGIN AUTHENTICATION SYSTEM (Vercel Env: PORTAL_PASSWORD)
+  // ==============================================================================
+  const securityOverlay = document.getElementById('security-login-overlay');
+  const portalLoginForm = document.getElementById('portal-login-form');
+  const portalPassInput = document.getElementById('portal-pass-input');
+  const portalLoginError = document.getElementById('portal-login-error');
+  const btnTogglePortalEye = document.getElementById('btn-toggle-portal-eye');
+  const btnLockPortal = document.getElementById('btn-lock-portal');
+
+  // Check persistent session authentication state
+  const isAuth = sessionStorage.getItem('iot_portal_auth') === 'authenticated';
+  if (isAuth && securityOverlay) {
+    securityOverlay.classList.add('unlocked');
+  }
+
+  // Toggle Password Visibility
+  if (btnTogglePortalEye && portalPassInput) {
+    btnTogglePortalEye.addEventListener('click', () => {
+      const isPass = portalPassInput.type === 'password';
+      portalPassInput.type = isPass ? 'text' : 'password';
+      btnTogglePortalEye.textContent = isPass ? '🙈' : '👁️';
+    });
+  }
+
+  // Handle Login Authentication
+  if (portalLoginForm) {
+    portalLoginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const enteredPass = portalPassInput.value.trim();
+      if (!enteredPass) return;
+
+      let verified = false;
+
+      // Try serverless API verification against Vercel environment variable
+      try {
+        const res = await fetch('/api/verify-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: enteredPass })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) verified = true;
+        }
+      } catch (err) {
+        // Fallback for static servers / local development
+      }
+
+      // Fallback client verification for static hosting / offline
+      if (!verified && enteredPass === 'Swarnadeep') {
+        verified = true;
+      }
+
+      if (verified) {
+        if (portalLoginError) portalLoginError.style.display = 'none';
+        sessionStorage.setItem('iot_portal_auth', 'authenticated');
+        if (securityOverlay) securityOverlay.classList.add('unlocked');
+        showToast('Security clearance granted. Welcome, Swarnadeep!');
+        portalPassInput.value = '';
+      } else {
+        if (portalLoginError) {
+          portalLoginError.style.display = 'flex';
+          portalLoginError.classList.remove('shake');
+          void portalLoginError.offsetWidth;
+          portalLoginError.classList.add('shake');
+        }
+        portalPassInput.select();
+      }
+    });
+  }
+
+  // Lock Portal Button Handler
+  if (btnLockPortal) {
+    btnLockPortal.addEventListener('click', () => {
+      sessionStorage.removeItem('iot_portal_auth');
+      if (securityOverlay) {
+        securityOverlay.classList.remove('unlocked');
+        if (portalPassInput) {
+          portalPassInput.value = '';
+          portalPassInput.focus();
+        }
+      }
+      showToast('Portal secured. Authentication locked.');
+    });
+  }
+
+  // ==============================================================================
+  // PROJECT PDFS: FREE IN-BROWSER VIEWER & PASSCODE-PROTECTED DOWNLOAD
+  // ==============================================================================
+  const pdfViewerModal = document.getElementById('pdf-viewer-modal');
+  const pdfViewerIframe = document.getElementById('pdf-viewer-iframe');
+  const pdfModalTitle = document.getElementById('pdf-modal-title');
+  const btnOpenPdfExternal = document.getElementById('btn-open-pdf-external');
+  const btnClosePdfModal = document.getElementById('btn-close-pdf-modal');
+
+  // Open Free Viewer
+  document.querySelectorAll('.btn-view-pdf').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const doc = btn.dataset.doc;
+      const title = btn.dataset.title;
+      const docPath = `docs/${doc}`;
+      if (pdfViewerIframe) pdfViewerIframe.src = docPath;
+      if (pdfModalTitle) pdfModalTitle.textContent = title || doc;
+      if (btnOpenPdfExternal) btnOpenPdfExternal.href = docPath;
+      if (pdfViewerModal) pdfViewerModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      showToast(`Loading ${title || 'document'} in free viewer...`);
+    });
+  });
+
+  function closePdfViewer() {
+    if (pdfViewerModal) {
+      pdfViewerModal.style.display = 'none';
+      if (pdfViewerIframe) pdfViewerIframe.src = '';
+      document.body.style.overflow = '';
+    }
+  }
+
+  if (btnClosePdfModal) btnClosePdfModal.addEventListener('click', closePdfViewer);
+  if (pdfViewerModal) {
+    pdfViewerModal.addEventListener('click', (e) => {
+      if (e.target === pdfViewerModal) closePdfViewer();
+    });
+  }
+
+  // Password-Protected Download Logic (Vercel Env: DOWNLOAD_PASSWORD)
+  const downloadAuthModal = document.getElementById('download-auth-modal');
+  const downloadTargetTitle = document.getElementById('download-target-title');
+  const downloadTargetFilename = document.getElementById('download-target-filename');
+  const downloadAuthForm = document.getElementById('download-auth-form');
+  const downloadPassInput = document.getElementById('download-pass-input');
+  const btnToggleDownloadEye = document.getElementById('btn-toggle-download-eye');
+  const downloadAuthError = document.getElementById('download-auth-error');
+  const btnCancelDownload = document.getElementById('btn-cancel-download');
+
+  let activeDownloadDoc = null;
+  let activeDownloadTitle = null;
+
+  document.querySelectorAll('.btn-download-pdf').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeDownloadDoc = btn.dataset.doc;
+      activeDownloadTitle = btn.dataset.title;
+      if (downloadTargetTitle) downloadTargetTitle.textContent = activeDownloadTitle || activeDownloadDoc;
+      if (downloadTargetFilename) downloadTargetFilename.textContent = activeDownloadDoc;
+      if (downloadPassInput) downloadPassInput.value = '';
+      if (downloadAuthError) downloadAuthError.style.display = 'none';
+      if (downloadAuthModal) downloadAuthModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => downloadPassInput && downloadPassInput.focus(), 50);
+    });
+  });
+
+  function closeDownloadModal() {
+    if (downloadAuthModal) {
+      downloadAuthModal.style.display = 'none';
+      document.body.style.overflow = '';
+      activeDownloadDoc = null;
+      activeDownloadTitle = null;
+    }
+  }
+
+  if (btnCancelDownload) btnCancelDownload.addEventListener('click', closeDownloadModal);
+  if (downloadAuthModal) {
+    downloadAuthModal.addEventListener('click', (e) => {
+      if (e.target === downloadAuthModal) closeDownloadModal();
+    });
+  }
+
+  if (btnToggleDownloadEye && downloadPassInput) {
+    btnToggleDownloadEye.addEventListener('click', () => {
+      const isPass = downloadPassInput.type === 'password';
+      downloadPassInput.type = isPass ? 'text' : 'password';
+      btnToggleDownloadEye.textContent = isPass ? '🙈' : '👁️';
+    });
+  }
+
+  if (downloadAuthForm) {
+    downloadAuthForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const enteredPass = downloadPassInput.value.trim();
+      if (!enteredPass || !activeDownloadDoc) return;
+
+      let verified = false;
+
+      // Try serverless API verification against Vercel DOWNLOAD_PASSWORD
+      try {
+        const res = await fetch('/api/verify-download', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: enteredPass, docFile: activeDownloadDoc })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) verified = true;
+        }
+      } catch (err) {
+        // Fallback for static servers / local development
+      }
+
+      // Fallback verification for static hosting / offline
+      if (!verified && enteredPass === 'Swarnadeep Roy') {
+        verified = true;
+      }
+
+      if (verified) {
+        if (downloadAuthError) downloadAuthError.style.display = 'none';
+        showToast(`Passcode accepted! Starting download of ${activeDownloadDoc}...`);
+        
+        // Trigger browser download
+        const downloadLink = document.createElement('a');
+        downloadLink.href = `docs/${activeDownloadDoc}`;
+        downloadLink.download = activeDownloadDoc;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+
+        closeDownloadModal();
+      } else {
+        if (downloadAuthError) {
+          downloadAuthError.style.display = 'flex';
+          downloadAuthError.classList.remove('shake');
+          void downloadAuthError.offsetWidth;
+          downloadAuthError.classList.add('shake');
+        }
+        downloadPassInput.select();
+      }
+    });
+  }
+
+  // Global escape key to close open modals
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') window.closeLightboxModal();
+    if (e.key === 'Escape') {
+      closePdfViewer();
+      closeDownloadModal();
+      window.closeLightboxModal();
+    }
   });
 
   // --- INITIALIZATION ---

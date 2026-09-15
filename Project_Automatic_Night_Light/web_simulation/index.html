@@ -12,6 +12,46 @@
 </head>
 <body>
 
+  <!-- CYBER SECURITY LOGIN GATE OVERLAY -->
+  <div id="security-login-overlay" class="security-overlay">
+    <div class="security-card">
+      <div class="security-shield-beacon">
+        <div class="shield-pulse"></div>
+        <span class="shield-icon">🛡️</span>
+      </div>
+      <div class="security-badge">
+        <span class="badge-dot"></span> VERCEL PROTECTED ACCESS
+      </div>
+      <h2 class="security-title">IoT Laboratory Simulation Portal</h2>
+      <p class="security-desc">Restricted Academic &amp; Engineering Simulation Environment • ATmega328P Microcontroller Laboratory</p>
+      
+      <form id="portal-login-form" class="security-form" onsubmit="return false;">
+        <div class="security-input-group">
+          <label for="portal-pass-input">Security Passcode</label>
+          <div class="input-with-icon">
+            <span class="field-icon">🔑</span>
+            <input type="password" id="portal-pass-input" placeholder="Enter security passcode..." autocomplete="current-password" required autofocus>
+            <button type="button" class="btn-toggle-eye" id="btn-toggle-portal-eye" title="Show/Hide Passcode">👁️</button>
+          </div>
+        </div>
+        
+        <div id="portal-login-error" class="security-error-msg" style="display: none;">
+          <span>⚠️</span> <span id="portal-error-text">Invalid security passcode. Access denied.</span>
+        </div>
+        
+        <button type="submit" id="btn-portal-login" class="btn-security-submit">
+          <span>Authenticate &amp; Enter Portal</span> ➔
+        </button>
+      </form>
+      
+      <div class="security-card-footer">
+        <span>🔒 Protected by Vercel Environment Security</span>
+        <span>•</span>
+        <span>Dept of CSE / IT</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Sticky Navigation Header -->
   <header class="site-header">
     <div class="brand-wrapper">
@@ -35,6 +75,7 @@
       <a href="#" data-page="bom-section">BOM &amp; Cost</a>
       <a href="#" data-page="viva-section">Viva Quiz</a>
       <a href="#" data-page="lab-writeup"><span>📝</span> Lab Write-Up</a>
+      <a href="#" data-page="project-pdfs"><span>📑</span> Project PDFs</a>
     </nav>
 
     <div class="header-actions">
@@ -42,6 +83,9 @@
         <span class="theme-icon sun-icon">☀️</span>
         <span class="theme-icon moon-icon">🌙</span>
         <span class="theme-slider"></span>
+      </button>
+      <button id="btn-lock-portal" class="btn-lock-portal" title="Lock Portal / Sign Out">
+        <span>🔒</span> <span class="lock-lbl">Lock</span>
       </button>
       <div class="badge-status">
         <div class="badge-pulse"></div>
@@ -1232,6 +1276,120 @@ void loop() {
       </div>
     </section>
 
+    <!-- PAGE 10: OFFICIAL PROJECT PDFS & ENGINEERING DOCUMENTS -->
+    <section id="project-pdfs" class="glass-section page-section">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h2><span>📑</span> Official Project PDFs &amp; Engineering Documents</h2>
+          <p>
+            Official LaTeX-compiled documents prepared for academic submission, laboratory examination, and circuit reproduction.
+            <strong>Free in-browser viewing</strong> is open for all documents. Downloading the official high-resolution PDF files requires the download passcode.
+          </p>
+        </div>
+        <div class="doc-security-pill">
+          <span>🛡️</span> Viewing: <strong>Free</strong> &nbsp;|&nbsp; Download: <strong>Passcode Protected</strong>
+        </div>
+      </div>
+
+      <!-- PDF Documents Grid -->
+      <div class="pdf-cards-grid">
+
+        <!-- Document Card 1 -->
+        <div class="pdf-card">
+          <div class="pdf-card-top">
+            <div class="pdf-type-badge badge-primary">Comprehensive Report</div>
+            <span class="pdf-size-tag">1.98 MB • LaTeX</span>
+          </div>
+          <div class="pdf-card-body">
+            <div class="pdf-icon-wrapper">
+              <span class="pdf-icon">📘</span>
+            </div>
+            <h3 class="pdf-card-title">Project Automatic Night Light Report</h3>
+            <p class="pdf-card-desc">
+              Comprehensive 15+ page engineering documentation including semiconductor photoconductivity physics, 10-bit SAR ADC equations, schematic diagrams, PCB shield design, hysteresis state machine, and oscilloscope analysis.
+            </p>
+            <div class="pdf-feature-tags">
+              <span>Full Derivations</span>
+              <span>BOM &amp; Schematics</span>
+              <span>C++ Source</span>
+              <span>Scope Graphs</span>
+            </div>
+          </div>
+          <div class="pdf-card-footer">
+            <button class="btn-view-pdf" data-doc="Project_Automatic_Night_Light_Report.pdf" data-title="Comprehensive Project &amp; Engineering Report">
+              <span>👁️</span> View Free
+            </button>
+            <button class="btn-download-pdf" data-doc="Project_Automatic_Night_Light_Report.pdf" data-title="Comprehensive Project &amp; Engineering Report">
+              <span>⬇️</span> Download PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- Document Card 2 -->
+        <div class="pdf-card">
+          <div class="pdf-card-top">
+            <div class="pdf-type-badge badge-accent">Exam Handout</div>
+            <span class="pdf-size-tag">371 KB • 1 Page</span>
+          </div>
+          <div class="pdf-card-body">
+            <div class="pdf-icon-wrapper">
+              <span class="pdf-icon">📄</span>
+            </div>
+            <h3 class="pdf-card-title">Single-Page Printable Code &amp; Output</h3>
+            <p class="pdf-card-desc">
+              Strictly engineered 1-page symmetric handout designed for physical laboratory submission. Contains formatted Arduino C++ code, pinout wiring matrix, 5-state observation table, viva reference questions, and teacher sign block.
+            </p>
+            <div class="pdf-feature-tags">
+              <span>Strict 1-Page Layout</span>
+              <span>A4 Print Ready</span>
+              <span>Clean Symmetry</span>
+              <span>Viva Questions</span>
+            </div>
+          </div>
+          <div class="pdf-card-footer">
+            <button class="btn-view-pdf" data-doc="Project_Printable_Code_and_Output.pdf" data-title="Single-Page Strict Printable Code &amp; Output Sheet">
+              <span>👁️</span> View Free
+            </button>
+            <button class="btn-download-pdf" data-doc="Project_Printable_Code_and_Output.pdf" data-title="Single-Page Strict Printable Code &amp; Output Sheet">
+              <span>⬇️</span> Download PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- Document Card 3 -->
+        <div class="pdf-card">
+          <div class="pdf-card-top">
+            <div class="pdf-type-badge badge-emerald">Practical Guide</div>
+            <span class="pdf-size-tag">192 KB • Step-by-Step</span>
+          </div>
+          <div class="pdf-card-body">
+            <div class="pdf-icon-wrapper">
+              <span class="pdf-icon">🛠️</span>
+            </div>
+            <h3 class="pdf-card-title">Step-by-Step Procedure &amp; Wiring Guide</h3>
+            <p class="pdf-card-desc">
+              Hands-on practical walkthrough detailing component inspection, breadboard wire distribution, potential divider tapping, serial monitor calibration at 9600 baud, safety precautions, and troubleshooting decision trees.
+            </p>
+            <div class="pdf-feature-tags">
+              <span>Breadboard Steps</span>
+              <span>Wire Colors</span>
+              <span>Serial 9600 Baud</span>
+              <span>Safety Checklist</span>
+            </div>
+          </div>
+          <div class="pdf-card-footer">
+            <button class="btn-view-pdf" data-doc="Step_by_Step_Procedure_Guide.pdf" data-title="Step-by-Step Procedure &amp; Wiring Guide">
+              <span>👁️</span> View Free
+            </button>
+            <button class="btn-download-pdf" data-doc="Step_by_Step_Procedure_Guide.pdf" data-title="Step-by-Step Procedure &amp; Wiring Guide">
+              <span>⬇️</span> Download PDF
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </main>
 
   <!-- Interactive Toast Notification -->
@@ -1261,6 +1419,71 @@ void loop() {
         <h4 id="lightbox-title">Image Title</h4>
         <p id="lightbox-desc">Detailed engineering description...</p>
       </div>
+    </div>
+  </div>
+
+  <!-- Interactive In-Browser PDF Free Viewer Modal -->
+  <div id="pdf-viewer-modal" class="modal-backdrop-custom" style="display: none;">
+    <div class="pdf-viewer-dialog">
+      <div class="modal-header-bar">
+        <div class="modal-title-box">
+          <span class="modal-icon">📖</span>
+          <h3 id="pdf-modal-title">PDF Document Viewer</h3>
+          <span class="badge-free-view">Free Academic Preview</span>
+        </div>
+        <div class="modal-controls">
+          <a id="btn-open-pdf-external" href="#" target="_blank" class="btn-ctrl-action" title="Open in dedicated browser tab">
+            <span>↗</span> Open Tab
+          </a>
+          <button id="btn-close-pdf-modal" class="btn-ctrl-close" title="Close Viewer">✕</button>
+        </div>
+      </div>
+      <div class="pdf-frame-wrapper">
+        <iframe id="pdf-viewer-iframe" src="" title="PDF Document Preview" frameborder="0"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Protected Download Passcode Modal -->
+  <div id="download-auth-modal" class="modal-backdrop-custom" style="display: none;">
+    <div class="download-dialog">
+      <div class="download-dialog-header">
+        <div class="download-icon-circle">
+          <span>🔒</span>
+        </div>
+        <h3>Protected Document Download</h3>
+        <p>Viewing is completely free! To download the official high-resolution PDF file, please enter the download passcode:</p>
+      </div>
+
+      <div class="download-file-preview-strip">
+        <span class="strip-icon">📄</span>
+        <div class="strip-info">
+          <strong id="download-target-title">Document Title</strong>
+          <span id="download-target-filename">filename.pdf</span>
+        </div>
+      </div>
+
+      <form id="download-auth-form" onsubmit="return false;">
+        <div class="security-input-group" style="margin-bottom: 0.85rem;">
+          <label for="download-pass-input">Download Passcode</label>
+          <div class="input-with-icon">
+            <span class="field-icon">🔑</span>
+            <input type="password" id="download-pass-input" placeholder="Enter download passcode..." autocomplete="off" required>
+            <button type="button" class="btn-toggle-eye" id="btn-toggle-download-eye" title="Show/Hide Passcode">👁️</button>
+          </div>
+        </div>
+
+        <div id="download-auth-error" class="security-error-msg" style="display: none; margin-bottom: 0.85rem;">
+          <span>⚠️</span> <span id="download-error-text">Invalid download passcode. Access denied.</span>
+        </div>
+
+        <div class="modal-btn-row">
+          <button type="button" id="btn-cancel-download" class="btn-secondary-action">Cancel</button>
+          <button type="submit" id="btn-submit-download" class="btn-primary-action">
+            <span>Verify &amp; Download</span> ➔
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

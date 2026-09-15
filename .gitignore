@@ -21,4 +21,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-.vercel
+# Raw camera photos and unneeded student scans
+raw_student_notes_and_photos/
+*.jpg
+*.jpeg
+*.png
+!Project_Automatic_Night_Light/web_simulation/*
+!Project_Automatic_Night_Light/hardware_breadboard_setup.jpg
+!Project_Automatic_Night_Light/pcb_shield_layout.jpg
+
