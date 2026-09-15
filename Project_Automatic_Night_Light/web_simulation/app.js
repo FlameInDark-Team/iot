@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
       step: 1,
       badge: 'STAGE 1 OF 5 • SENSOR TRANSDUCTION',
       heading: 'Photoconductive Excitation in Cadmium Sulfide (CdS)',
-      description: 'Incident photons with energy $h\\nu \\ge E_g \\approx 2.42\\,\\text{eV}$ strike the ceramic CdS surface, kicking valence electrons across the forbidden gap into the conduction band. The resulting abundance of free electron-hole pairs drastically cuts bulk sensor resistance from $>100\\,\\text{k}\\Omega$ in pitch darkness to $<1\\,\\text{k}\\Omega$ in daylight.',
+      description: 'Incident photons with energy hν ≥ Eg ≈ 2.42 eV strike the ceramic CdS surface, kicking valence electrons across the forbidden gap into the conduction band. The resulting abundance of free electron-hole pairs drastically cuts bulk sensor resistance from >100 kΩ in pitch darkness to <1 kΩ in daylight.',
       formula: 'R_LDR = 500,000 × Lux^(-0.75) | λ_cutoff = hc / E_g = 512 nm',
       caption: 'Photon Flux Striking CdS Active Serpentine Track',
       renderSvg: (svg) => {
@@ -533,7 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
       step: 2,
       badge: 'STAGE 2 OF 5 • VOLTAGE TRANSLATION',
       heading: 'Potential Divider Ratio Scaling (0 to 5V Analog)',
-      description: 'Because microcontrollers cannot read bare resistance directly, the LDR is paired with a precision $10\\,\\text{k}\\Omega$ carbon pull-down resistor to GND. By Ohm\'s voltage division, the intermediate node tap voltage shifts dynamically with illuminance.',
+      description: 'Because microcontrollers cannot read bare resistance directly, the LDR is paired with a precision 10 kΩ carbon pull-down resistor to GND. By Ohm\'s voltage division, the intermediate node tap voltage shifts dynamically with illuminance.',
       formula: 'V_node = V_cc × [ 10,000 / (R_LDR + 10,000) ]',
       caption: 'Ohmic Potential Divider Network',
       renderSvg: (svg) => {
@@ -562,7 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
       step: 3,
       badge: 'STAGE 3 OF 5 • ANALOG-TO-DIGITAL CONVERSION',
       heading: '10-Bit Successive Approximation Register (SAR) ADC',
-      description: 'The ATmega328P ADC compares the continuous tap voltage against a $5.0\\,\\text{V}$ reference in $13$ clock cycles ($104\\,\\mu\\text{s}$). The binary search successive approximation algorithm quantizes the voltage into $2^{10} = 1024$ discrete integer steps.',
+      description: 'The ATmega328P ADC compares the continuous tap voltage against a 5.0 V reference in 13 clock cycles (104 μs). The binary search successive approximation algorithm quantizes the voltage into 2¹⁰ = 1024 discrete integer steps.',
       formula: 'ADC = round( (V_node / 5.0 V) × 1023 ) | 1 LSB = 4.887 mV',
       caption: 'SAR Internal Binary Search DAC Comparator',
       renderSvg: (svg) => {
@@ -587,7 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
       step: 4,
       badge: 'STAGE 4 OF 5 • DIGITAL SIGNAL PROCESSING',
       heading: 'Circular FIFO Moving-Average Noise Filter',
-      description: 'A 10-sample rolling buffer in SRAM continually purges high-frequency sensor noise, mains $50\\,\\text{Hz}$ fluorescent hum, and rapid shadow flickers. In each loop iteration, the oldest sample is subtracted from a running sum and replaced with the new reading.',
+      description: 'A 10-sample rolling buffer in SRAM continually purges high-frequency sensor noise, mains 50 Hz fluorescent hum, and rapid shadow flickers. In each loop iteration, the oldest sample is subtracted from a running sum and replaced with the new reading.',
       formula: 'filteredADC = runningSum / 10 | Computational Complexity: O(1)',
       caption: 'FIFO Circular Buffer Smoothing Architecture',
       renderSvg: (svg) => {
@@ -611,7 +611,7 @@ document.addEventListener('DOMContentLoaded', () => {
       step: 5,
       badge: 'STAGE 5 OF 5 • HYSTERESIS DECISION & ACTUATION',
       heading: 'Schmitt-Trigger Software Hysteresis & LED Control',
-      description: 'The filtered ADC is compared against dual thresholds. To enter the ON state, darkness must drop below $400$ ($1.95\\,\\text{V}$). To extinguish, daylight must climb above $500$ ($2.44\\,\\text{V}$). The $100$-count deadband prevents rapid chatter, contact sparking, and visual flickering.',
+      description: 'The filtered ADC is compared against dual thresholds. To enter the ON state, darkness must drop below 400 (1.95 V). To extinguish, daylight must climb above 500 (2.44 V). The 100-count deadband prevents rapid chatter, contact sparking, and visual flickering.',
       formula: 'ON if ADC ≤ 400 | OFF if ADC ≥ 500 | Deadband Δ = 100 Counts',
       caption: 'Bistable Schmitt-Trigger Transfer Characteristic',
       renderSvg: (svg) => {

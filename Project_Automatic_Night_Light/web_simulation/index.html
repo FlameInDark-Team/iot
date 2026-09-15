@@ -550,93 +550,99 @@
     <section id="theory" class="glass-section page-section">
       <div class="section-header">
         <div class="section-title-group">
-          <h2><span>🔬</span> Comprehensive Theory & Mathematical Foundations</h2>
+          <h2><span>🔬</span> Comprehensive Theory &amp; Mathematical Foundations</h2>
           <p>Academic rigor covering semiconductor band theory, divider sensitivity derivation, ADC quantization metrics, and AC mains relay isolation.</p>
         </div>
       </div>
 
       <div class="theory-grid">
+        <!-- Card 1: Photoconductive Physics -->
         <div class="theory-card">
           <div class="theory-icon">☀️</div>
           <h3>Photoconductive Physics in CdS</h3>
           <p>
-            Cadmium Sulfide is an intrinsic II-VI direct bandgap semiconductor ($E_g = 2.42\,\text{eV}$). Optical absorption occurs when photon energy matches or exceeds this threshold:
+            Cadmium Sulfide (CdS) is an intrinsic II-VI direct bandgap semiconductor with an energy bandgap of <strong><em>E</em><sub>g</sub> = 2.42 eV</strong>. Optical photo-excitation occurs when incident photon energy meets or exceeds this quantum threshold:
           </p>
           <div class="step-formula-box">
-            λ_cutoff = hc / E_g ≈ 512 nm
+            λ<sub>cutoff</sub> = hc / <em>E</em><sub>g</sub> ≈ 512 nm (Green-Blue Spectrum)
           </div>
           <p>
-            Incident light creates electron-hole pairs, elevating carrier density $\Delta n = \eta G \tau$. Because electron mobility in CdS ($\mu_e \approx 250\,\text{cm}^2/\text{V}\cdot\text{s}$) exceeds hole mobility, conductivity $\sigma = q(n\mu_e + p\mu_p)$ spikes by up to 3 orders of magnitude.
+            Incoming photons break covalent bonds, elevating excess carrier density <strong>Δ<em>n</em> = η · <em>G</em> · τ</strong>. Because electron mobility in CdS (<strong>μ<sub>e</sub> ≈ 250 cm²/(V·s)</strong>) significantly outpaces hole mobility, electrical conductivity <strong>σ = <em>q</em>(<em>n</em>μ<sub>e</sub> + <em>p</em>μ<sub>h</sub>)</strong> spikes by over 3 orders of magnitude, collapsing resistance from <strong>&gt;1 MΩ</strong> in darkness to <strong>&lt;400 Ω</strong> in bright sunlight.
           </p>
         </div>
 
+        <!-- Card 2: Potential Divider -->
         <div class="theory-card">
           <div class="theory-icon">⚡</div>
           <h3>Potential Divider Sensitivity Optimization</h3>
           <p>
-            The analog voltage $V_{\text{node}}$ tapped into pin A0 is governed by Ohm's potential division:
+            Because microcontrollers cannot read bare resistance directly, the LDR is paired with a fixed pull-down resistor <strong><em>R</em><sub>fixed</sub></strong> to form a potential divider tapped into analog pin <strong>A0</strong>:
           </p>
           <div class="step-formula-box">
-            V_out = V_cc × [ R_fixed / (R_LDR + R_fixed) ]
+            <em>V</em><sub>out</sub> = <em>V</em><sub>cc</sub> × [ <em>R</em><sub>fixed</sub> / (<em>R</em><sub>LDR</sub> + <em>R</em><sub>fixed</sub>) ]
           </div>
           <p>
-            Differentiating sensitivity $S = |dV_{\text{out}}/dR_{\text{LDR}}| = V_{\text{cc}} R_{\text{fixed}} / (R_{\text{LDR}} + R_{\text{fixed}})^2$ reveals maximum voltage swing occurs when $R_{\text{fixed}} \approx R_{\text{LDR}}$. For domestic dusk transitions ($20-100\,\text{lux}$), $R_{\text{LDR}} \approx 8-15\,\text{k}\Omega$, making $10\,\text{k}\Omega$ the optimal divider value.
+            Differentiating sensitivity <strong><em>S</em> = |d<em>V</em><sub>out</sub> / d<em>R</em><sub>LDR</sub>| = <em>V</em><sub>cc</sub> · <em>R</em><sub>fixed</sub> / (<em>R</em><sub>LDR</sub> + <em>R</em><sub>fixed</sub>)²</strong> reveals that maximum voltage swing per lux occurs when <strong><em>R</em><sub>fixed</sub> ≈ <em>R</em><sub>LDR</sub></strong>. For typical domestic twilight transitions (20 – 100 lux), photocell resistance hovers between <strong>8 kΩ and 15 kΩ</strong>, proving that <strong>10 kΩ</strong> is mathematically optimal.
           </p>
         </div>
 
+        <!-- Card 3: 10-Bit SAR ADC -->
         <div class="theory-card">
           <div class="theory-icon">📊</div>
-          <h3>10-Bit SAR ADC Quantization</h3>
+          <h3>10-Bit SAR ADC Quantization &amp; Filtering</h3>
           <p>
-            The ATmega328P microcontroller utilizes a Successive Approximation Register (SAR) analog-to-digital converter operating at $125\,\text{kHz}$ with $13$ clock cycles per conversion ($104\,\mu\text{s}$ conversion time).
+            The ATmega328P microcontroller incorporates a Successive Approximation Register (SAR) ADC clocked at <strong>125 kHz</strong>, taking <strong>13 clock cycles (104 μs)</strong> to resolve a continuous analog voltage into a 10-bit digital count:
           </p>
           <div class="step-formula-box">
-            LSB = V_ref / 1024 = 5.0 V / 1024 = 4.8828 mV
+            1 LSB = <em>V</em><sub>ref</sub> / 1024 = 5.0 V / 1024 = 4.8828 mV per Count
           </div>
           <p>
-            A 10-sample rolling average boxcar filter suppresses high-frequency optical noise, mains $50\,\text{Hz}$ hum, and thermal drift without causing phase lag.
+            Digital output <strong><em>D</em> = round((<em>V</em><sub>node</sub> / 5.0 V) × 1023)</strong>. A 10-sample rolling average boxcar filter running in SRAM eliminates high-frequency sensor noise, mains <strong>50 Hz</strong> fluorescent flicker, and thermal drift without introducing phase delay.
           </p>
         </div>
 
+        <!-- Card 4: Schmitt Hysteresis -->
         <div class="theory-card">
           <div class="theory-icon">🔀</div>
-          <h3>Dual-Threshold Schmitt Hysteresis</h3>
+          <h3>Dual-Threshold Schmitt Trigger Hysteresis</h3>
           <p>
-            Standard single-threshold comparators oscillate rapidly when ambient light hovers near the trip point. This design introduces a software Schmitt-trigger with upper and lower trip points:
+            Single-threshold comparators oscillate rapidly and buzz relays when ambient twilight lingers near the trip point. This design implements software Schmitt-trigger hysteresis with distinct upper and lower trip points:
           </p>
           <div class="step-formula-box">
-            Deadband Δ = T_LIGHT - T_DARK = 500 - 400 = 100 Counts (0.488 V)
+            Deadband Δ = <em>T</em><sub>LIGHT</sub> - <em>T</em><sub>DARK</sub> = 500 - 400 = 100 Counts (0.488 V)
           </div>
           <p>
-            When entering twilight from daylight, the light remains OFF until light drops to $35\,\text{lux}$ ($D \le 400$). When morning arrives, the light remains ON until light rises past $85\,\text{lux}$ ($D \ge 500$).
+            When descending into darkness, the luminaire turns ON only when light drops to <strong>≤ 35 lux (ADC ≤ 400)</strong>. When morning dawns, the luminaire extinguishes only when light climbs past <strong>≥ 85 lux (ADC ≥ 500)</strong>, guaranteeing 100% chatter-free stability.
           </p>
         </div>
 
+        <!-- Card 5: AC Relay Isolation -->
         <div class="theory-card">
           <div class="theory-icon">🔌</div>
-          <h3>AC Mains Relay & Optocoupler Interfacing</h3>
+          <h3>AC Mains Relay &amp; Galvanic Optoisolation</h3>
           <p>
-            To actuate a $230\,\text{V}$ AC / $50\,\text{Hz}$ domestic lighting fixture, the low-voltage microcontroller output must be galvanically isolated using an electromechanical relay module or solid-state TRIAC.
+            To safely control a domestic <strong>230 V AC / 50 Hz</strong> luminaire or street lighting grid, the low-voltage 5V microcontroller output must be galvanically isolated from lethal mains potentials:
           </p>
           <div class="step-formula-box">
-            Optoisolation: MOC3021 / PC817 (5000 V RMS Isolation)
+            Optoisolator: MOC3021 / PC817 (5,000 V RMS Galvanic Isolation)
           </div>
           <p>
-            A 2N2222 NPN transistor drives the relay coil ($70\,\text{mA}$), while a 1N4007 flyback diode clamps back-EMF inductive spikes ($V = -L \cdot di/dt$) that would otherwise destroy the Arduino port.
+            A 2N2222 NPN BJT driver sinks the <strong>70 mA</strong> relay coil current, while a reverse-biased <strong>1N4007 flyback diode</strong> clamps back-EMF inductive kickback voltages (<strong><em>V</em> = -<em>L</em> · d<em>i</em>/d<em>t</em></strong>) that would otherwise destroy the ATmega328P I/O port.
           </p>
         </div>
 
+        <!-- Card 6: IoT Smart Grid -->
         <div class="theory-card">
           <div class="theory-icon">🌐</div>
-          <h3>IoT Cloud & Smart Grid Integration</h3>
+          <h3>IoT Cloud &amp; Municipal Smart Grid Integration</h3>
           <p>
-            The architecture readily extends to smart city street lighting grids by replacing or pairing the ATmega328P with an ESP32 or ESP8266 Wi-Fi transceiver publishing telemetry via MQTT to AWS IoT Core or ThingSpeak.
+            The edge controller architecture readily integrates into smart city street lighting grids by pairing or upgrading the ATmega328P with an ESP32 or ESP8266 Wi-Fi / LoRaWAN transceiver:
           </p>
           <div class="step-formula-box">
-            Protocol: MQTT over TLS (Port 8883) | Payload: JSON Telemetry
+            Protocol: MQTT over TLS (Port 8883) | Payload: JSON Telemetry Stream
           </div>
           <p>
-            Enables remote fault detection, energy metering, burn-hour tracking, and predictive maintenance across thousands of municipal luminaire nodes.
+            Node publishes lux values, node voltage, burn-time hours, and relay status to cloud dashboards (AWS IoT Core, ThingSpeak), enabling predictive maintenance, dynamic dimming, and autonomous fault detection across thousands of municipal luminaire nodes.
           </p>
         </div>
       </div>
