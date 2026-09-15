@@ -5,7 +5,7 @@
 > *Compliant with ATmega328P Hardware Specifications • Production C++ Firmware • Interactive Web Simulator*
 
 [![GitHub repo](https://img.shields.io/badge/GitHub-FlameInDark--Team%2Fiot-blue?logo=github)](https://github.com/FlameInDark-Team/iot)
-[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Simulation-success?logo=vercel)](https://vercel.com)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Simulation-success?logo=vercel)](https://iot-lab-one.vercel.app)
 [![Hardware](https://img.shields.io/badge/Hardware-Arduino%20UNO%20R3-00979D?logo=arduino)](https://www.arduino.cc/)
 [![License](https://img.shields.io/badge/License-Academic%20Lab-orange)](#)
 
@@ -15,7 +15,7 @@
 
 Experience the fully responsive, physics-driven web simulation portal with real-time 50Hz oscilloscope sampling, COM3 serial telemetry, and hardware workbench inspection:
 
-👉 **[Launch Interactive Simulation Portal](Project_Automatic_Night_Light/web_simulation/index.html)**
+👉 **[Launch Interactive Simulation Portal (Live on Vercel)](https://iot-lab-one.vercel.app)**
 
 ---
 
