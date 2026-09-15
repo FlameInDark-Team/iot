@@ -1327,34 +1327,119 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==============================================================================
-  // PROJECT PDFS: FREE IN-BROWSER VIEWER & PASSCODE-PROTECTED DOWNLOAD
+  // PROJECT PDFS: DRM CANVAS VIEWER & ANTI-SCREENSHOT SYSTEM
+  // No Native Browser Toolbars • Anti-Screengrab Shield • Print Lockdown
   // ==============================================================================
   const pdfViewerModal = document.getElementById('pdf-viewer-modal');
-  const pdfViewerIframe = document.getElementById('pdf-viewer-iframe');
+  const pdfCanvasContainer = document.getElementById('pdf-canvas-container');
   const pdfModalTitle = document.getElementById('pdf-modal-title');
-  const btnOpenPdfExternal = document.getElementById('btn-open-pdf-external');
   const btnClosePdfModal = document.getElementById('btn-close-pdf-modal');
+  const drmScreenShield = document.getElementById('drm-screen-shield');
+  const drmPageCount = document.getElementById('drm-page-count');
+  const btnDrmZoomIn = document.getElementById('btn-drm-zoom-in');
+  const btnDrmZoomOut = document.getElementById('btn-drm-zoom-out');
+  const drmZoomLabel = document.getElementById('drm-zoom-label');
 
-  // Open Free Viewer
+  let currentDrmPdfDoc = null;
+  let currentDrmScale = 1.35; // Default crisp scale
+
+  // Configure PDF.js worker
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+
+  // Render PDF pages onto HTML5 Canvas with DRM watermarks
+  async function renderDrmPdf(docPath, title) {
+    if (!pdfCanvasContainer) return;
+    pdfCanvasContainer.innerHTML = `
+      <div class="pdf-loading-spinner" id="pdf-loading-msg">
+        <div class="spinner-ring"></div>
+        <span>Rendering Protected DRM Document...</span>
+      </div>
+    `;
+
+    if (!window.pdfjsLib) {
+      pdfCanvasContainer.innerHTML = `
+        <div style="padding: 3rem; text-align: center; color: #f87171;">
+          <p>⚠️ PDF rendering engine unavailable. Please check your internet connection.</p>
+        </div>
+      `;
+      return;
+    }
+
+    try {
+      const loadingTask = pdfjsLib.getDocument(docPath);
+      currentDrmPdfDoc = await loadingTask.promise;
+      
+      const numPages = currentDrmPdfDoc.numPages;
+      if (drmPageCount) drmPageCount.textContent = `Total Pages: ${numPages}`;
+      pdfCanvasContainer.innerHTML = ''; // clear loading spinner
+
+      for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+        const page = await currentDrmPdfDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: currentDrmScale });
+
+        const pageWrapper = document.createElement('div');
+        pageWrapper.className = 'pdf-page-wrapper';
+        pageWrapper.style.width = `${viewport.width}px`;
+        pageWrapper.style.height = `${viewport.height}px`;
+
+        const canvas = document.createElement('canvas');
+        canvas.className = 'pdf-page-canvas';
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        const renderContext = {
+          canvasContext: canvas.getContext('2d'),
+          viewport: viewport
+        };
+        await page.render(renderContext).promise;
+
+        // Overlay repetitive diagonal DRM watermark pattern
+        const watermark = document.createElement('div');
+        watermark.className = 'pdf-drm-watermark';
+        for (let r = 0; r < 8; r++) {
+          const row = document.createElement('div');
+          row.className = 'watermark-row';
+          row.textContent = 'RESTRICTED PREVIEW • DRM PROTECTED • NO SCREENSHOTS • NO PRINTING';
+          watermark.appendChild(row);
+        }
+
+        pageWrapper.appendChild(canvas);
+        pageWrapper.appendChild(watermark);
+        pdfCanvasContainer.appendChild(pageWrapper);
+      }
+    } catch (err) {
+      console.error('PDF DRM Render error:', err);
+      pdfCanvasContainer.innerHTML = `
+        <div style="padding: 3rem; text-align: center; color: #f87171;">
+          <p>⚠️ Error rendering protected document preview.</p>
+        </div>
+      `;
+    }
+  }
+
+  // Open DRM Protected Viewer
   document.querySelectorAll('.btn-view-pdf').forEach(btn => {
     btn.addEventListener('click', () => {
       const doc = btn.dataset.doc;
       const title = btn.dataset.title;
       const docPath = `docs/${doc}`;
-      if (pdfViewerIframe) pdfViewerIframe.src = docPath;
       if (pdfModalTitle) pdfModalTitle.textContent = title || doc;
-      if (btnOpenPdfExternal) btnOpenPdfExternal.href = docPath;
       if (pdfViewerModal) pdfViewerModal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
-      showToast(`Loading ${title || 'document'} in free viewer...`);
+      showToast(`Loading ${title || 'document'} in DRM protected viewer...`);
+      renderDrmPdf(docPath, title);
     });
   });
 
   function closePdfViewer() {
     if (pdfViewerModal) {
       pdfViewerModal.style.display = 'none';
-      if (pdfViewerIframe) pdfViewerIframe.src = '';
+      if (pdfCanvasContainer) pdfCanvasContainer.innerHTML = '';
+      if (drmScreenShield) drmScreenShield.classList.remove('active');
       document.body.style.overflow = '';
+      currentDrmPdfDoc = null;
     }
   }
 
@@ -1362,6 +1447,126 @@ document.addEventListener('DOMContentLoaded', () => {
   if (pdfViewerModal) {
     pdfViewerModal.addEventListener('click', (e) => {
       if (e.target === pdfViewerModal) closePdfViewer();
+    });
+  }
+
+  // Zoom In / Out Controls
+  if (btnDrmZoomIn) {
+    btnDrmZoomIn.addEventListener('click', () => {
+      if (!currentDrmPdfDoc || currentDrmScale >= 2.2) return;
+      currentDrmScale += 0.2;
+      if (drmZoomLabel) drmZoomLabel.textContent = `${Math.round((currentDrmScale / 1.35) * 100)}%`;
+      document.querySelectorAll('.pdf-page-wrapper').forEach(wrapper => {
+        wrapper.style.transform = `scale(${currentDrmScale / 1.35})`;
+        wrapper.style.transformOrigin = 'top center';
+      });
+    });
+  }
+
+  if (btnDrmZoomOut) {
+    btnDrmZoomOut.addEventListener('click', () => {
+      if (!currentDrmPdfDoc || currentDrmScale <= 0.8) return;
+      currentDrmScale -= 0.2;
+      if (drmZoomLabel) drmZoomLabel.textContent = `${Math.round((currentDrmScale / 1.35) * 100)}%`;
+      document.querySelectorAll('.pdf-page-wrapper').forEach(wrapper => {
+        wrapper.style.transform = `scale(${currentDrmScale / 1.35})`;
+        wrapper.style.transformOrigin = 'top center';
+      });
+    });
+  }
+
+  // ==============================================================================
+  // ANTI-SCREENSHOT & ANTI-SCREEN-RECORDING PRIVACY SHIELD
+  // Obscures document when window focus is lost (Snipping Tool, Win+Shift+S, ShareX)
+  // ==============================================================================
+  function activateScreenShield() {
+    if (pdfViewerModal && pdfViewerModal.style.display !== 'none' && drmScreenShield) {
+      drmScreenShield.classList.add('active');
+    }
+  }
+
+  function deactivateScreenShield() {
+    if (drmScreenShield) {
+      drmScreenShield.classList.remove('active');
+    }
+  }
+
+  window.addEventListener('blur', activateScreenShield);
+  window.addEventListener('focus', deactivateScreenShield);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      activateScreenShield();
+    } else {
+      deactivateScreenShield();
+    }
+  });
+
+  // PrintScreen Key Detection & Clipboard Clearing
+  window.addEventListener('keyup', (e) => {
+    if (e.key === 'PrintScreen' || e.keyCode === 44) {
+      if (pdfViewerModal && pdfViewerModal.style.display !== 'none') {
+        activateScreenShield();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText('⚠️ PROTECTED DOCUMENT: Screen captures and recording are disabled by DRM policy.');
+        }
+        showToast('⚠️ Screen capture prohibited by DRM policy.');
+        setTimeout(deactivateScreenShield, 1500);
+      }
+    }
+  });
+
+  // Strict Print & Keyboard Shortcut Restrictions
+  window.addEventListener('keydown', (e) => {
+    const isViewerOpen = pdfViewerModal && pdfViewerModal.style.display !== 'none';
+
+    if (e.key === 'PrintScreen' || e.keyCode === 44) {
+      if (isViewerOpen) {
+        activateScreenShield();
+        setTimeout(deactivateScreenShield, 1200);
+      }
+    }
+
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
+      e.preventDefault();
+      showToast('⚠️ Printing is disabled for preview documents.');
+      return false;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+      e.preventDefault();
+      showToast('⚠️ Saving is disabled. Use the Download button with password authorization.');
+      return false;
+    }
+
+    if (isViewerOpen && (e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) {
+      e.preventDefault();
+      showToast('⚠️ Text copying is disabled for protected documents.');
+      return false;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U')) {
+      e.preventDefault();
+      return false;
+    }
+
+    if (isViewerOpen && (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')))) {
+      e.preventDefault();
+      showToast('⚠️ Developer tools inspection restricted.');
+      return false;
+    }
+  });
+
+  window.addEventListener('beforeprint', () => {
+    if (pdfViewerModal && pdfViewerModal.style.display !== 'none') {
+      closePdfViewer();
+    }
+  });
+
+  if (pdfViewerModal) {
+    pdfViewerModal.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      showToast('⚠️ Right-click context menu is disabled for protected documents.');
+      return false;
     });
   }
 

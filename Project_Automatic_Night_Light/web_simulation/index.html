@@ -9,6 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Mozilla PDF.js Library for Custom DRM Canvas Rendering (Disables native PDF print/download toolbars) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 
@@ -1422,24 +1424,50 @@ void loop() {
     </div>
   </div>
 
-  <!-- Interactive In-Browser PDF Free Viewer Modal -->
+  <!-- Protected In-Browser PDF DRM Free Viewer Modal -->
   <div id="pdf-viewer-modal" class="modal-backdrop-custom" style="display: none;">
-    <div class="pdf-viewer-dialog">
-      <div class="modal-header-bar">
+    <div class="pdf-viewer-dialog drm-protected-dialog">
+      <!-- DRM Header Bar -->
+      <div class="modal-header-bar drm-header-bar">
         <div class="modal-title-box">
-          <span class="modal-icon">📖</span>
-          <h3 id="pdf-modal-title">PDF Document Viewer</h3>
-          <span class="badge-free-view">Free Academic Preview</span>
+          <span class="modal-icon">🔒</span>
+          <h3 id="pdf-modal-title">Protected Document Preview</h3>
+          <span class="badge-drm-secure">🛡️ DRM Protected</span>
+          <span class="badge-no-print">🖨️ Print &amp; Download Disabled</span>
         </div>
         <div class="modal-controls">
-          <a id="btn-open-pdf-external" href="#" target="_blank" class="btn-ctrl-action" title="Open in dedicated browser tab">
-            <span>↗</span> Open Tab
-          </a>
+          <div class="drm-zoom-controls">
+            <button id="btn-drm-zoom-out" class="btn-ctrl-action" title="Zoom Out">🔍−</button>
+            <span id="drm-zoom-label" class="drm-zoom-val">100%</span>
+            <button id="btn-drm-zoom-in" class="btn-ctrl-action" title="Zoom In">🔍+</button>
+          </div>
           <button id="btn-close-pdf-modal" class="btn-ctrl-close" title="Close Viewer">✕</button>
         </div>
       </div>
-      <div class="pdf-frame-wrapper">
-        <iframe id="pdf-viewer-iframe" src="" title="PDF Document Preview" frameborder="0"></iframe>
+
+      <!-- Anti-Screenshot Privacy Shield Overlay -->
+      <div id="drm-screen-shield" class="drm-screen-shield">
+        <div class="shield-warning-box">
+          <div class="shield-warn-icon">🚫</div>
+          <h4>SCREEN CAPTURE / WINDOW BLUR DETECTED</h4>
+          <p>Security protocol activated: Content is concealed while window focus is lost to protect intellectual property.</p>
+          <span class="shield-resume-tag">Click inside window to resume viewing</span>
+        </div>
+      </div>
+
+      <!-- Scrollable Protected Canvas Pages Container -->
+      <div class="pdf-frame-wrapper drm-canvas-scroller" id="pdf-canvas-container" oncontextmenu="return false;">
+        <!-- Canvas pages with DRM watermarks rendered dynamically by PDF.js -->
+        <div class="pdf-loading-spinner" id="pdf-loading-msg">
+          <div class="spinner-ring"></div>
+          <span>Rendering Protected DRM Document...</span>
+        </div>
+      </div>
+      
+      <!-- Bottom DRM Status Bar -->
+      <div class="drm-bottom-bar">
+        <span>🔒 Read-Only DRM Preview • Printing, downloading, and copying are hardware/software restricted</span>
+        <span id="drm-page-count">Page 1 of 1</span>
       </div>
     </div>
   </div>

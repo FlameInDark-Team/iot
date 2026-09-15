@@ -4539,6 +4539,265 @@ ul.doc-list li strong {
   }
 }
 
+/* ==============================================================================
+   PDF DRM PROTECTED CANVAS VIEWER & ANTI-SCREENSHOT SHIELD
+   Zero Native Toolbars • Anti-Capture Focus Blur • Watermark Mesh • Print Lockdown
+   ============================================================================== */
+.drm-protected-dialog {
+  position: relative;
+  background: #111418;
+  border-color: #334155;
+}
+
+.drm-header-bar {
+  background: #181c22;
+  border-bottom: 1.5px solid #28303e;
+}
+
+[data-theme="light"] .drm-header-bar {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.badge-drm-secure {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+}
+
+.badge-no-print {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(244, 63, 94, 0.15);
+  color: #f43f5e;
+  border: 1px solid rgba(244, 63, 94, 0.35);
+}
+
+.drm-zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.drm-zoom-val {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 44px;
+  text-align: center;
+}
+
+/* Scrollable DRM Canvas Container */
+.drm-canvas-scroller {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  background: #1e2227;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  padding: 2rem 1rem;
+  position: relative;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+[data-theme="light"] .drm-canvas-scroller {
+  background: #e2e8f0;
+}
+
+.pdf-page-wrapper {
+  position: relative;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #ffffff;
+  line-height: 0;
+  max-width: 100%;
+}
+
+.pdf-page-canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+/* Repeating Diagonal DRM Watermark Mesh */
+.pdf-drm-watermark {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 140px,
+    rgba(220, 38, 38, 0.05) 140px,
+    rgba(220, 38, 38, 0.05) 280px
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 2rem;
+  transform: rotate(-15deg) scale(1.15);
+}
+
+.watermark-row {
+  display: flex;
+  justify-content: space-around;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: rgba(220, 38, 38, 0.12);
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Anti-Screenshot Privacy Shield Overlay */
+.drm-screen-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  background: rgba(3, 7, 18, 0.98);
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  transition: opacity 0.2s ease;
+}
+
+.drm-screen-shield.active {
+  display: flex !important;
+}
+
+.shield-warning-box {
+  max-width: 480px;
+  padding: 2.5rem 2rem;
+  background: rgba(15, 23, 42, 0.92);
+  border: 2px solid #f43f5e;
+  border-radius: 18px;
+  box-shadow: 0 0 50px rgba(244, 63, 94, 0.35);
+  text-align: center;
+}
+
+.shield-warn-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 12px rgba(244, 63, 94, 0.6));
+}
+
+.shield-warning-box h4 {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #f43f5e;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.04em;
+}
+
+.shield-warning-box p {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+  margin-bottom: 1.4rem;
+}
+
+.shield-resume-tag {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+/* DRM Bottom Bar */
+.drm-bottom-bar {
+  padding: 0.55rem 1.4rem;
+  background: #181c22;
+  border-top: 1px solid #28303e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .drm-bottom-bar {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.pdf-loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  color: var(--accent-cyan);
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.spinner-ring {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(6, 182, 212, 0.2);
+  border-top-color: var(--accent-cyan);
+  border-radius: 50%;
+  animation: spinRing 0.8s linear infinite;
+}
+
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}
+
+/* ==============================================================================
+   STRICT PRINT LOCKDOWN
+   Completely blanks out pages when printing is initiated
+   ============================================================================== */
+@media print {
+  body * {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  html, body {
+    background: #000000 !important;
+  }
+  body::before {
+    content: "⚠️ DRM SECURITY RESTRICTION: Printing of this protected laboratory document is strictly prohibited by security policy.";
+    display: block !important;
+    visibility: visible !important;
+    color: #ef4444 !important;
+    font-size: 18pt !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    padding-top: 180px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  }
+}
+
+
 
 
 
