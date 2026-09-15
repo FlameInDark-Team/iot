@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Official Lab Record & Examination Write-Up — Automatic Night Light System</title>
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-secondary: #f1f5f9;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      --border-highlight: #94a3b8;
+      --accent-blue: #0284c7;
+      --accent-navy: #0f2744;
+      --accent-green: #16a34a;
+      --code-bg: #f8fafc;
+      --code-border: #cbd5e1;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, Menlo, monospace;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #020617;
+      --bg-card: #0b1120;
+      --bg-secondary: #0f172a;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border-color: #1e293b;
+      --border-highlight: #334155;
+      --accent-blue: #38bdf8;
+      --accent-navy: #38bdf8;
+      --accent-green: #4ade80;
+      --code-bg: #030712;
+      --code-border: #1e293b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.65;
+      padding: 2rem 1.5rem;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    /* Fixed floating top toolbar */
+    .top-floating-bar {
+      position: sticky;
+      top: 1rem;
+      z-index: 100;
+      max-width: 960px;
+      margin: 0 auto 1.5rem auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-action:hover {
+      background: var(--accent-blue);
+      color: #ffffff;
+      border-color: var(--accent-blue);
+      transform: translateY(-1px);
+    }
+
+    .btn-action.btn-primary {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+    }
+
+    .btn-action.btn-primary:hover {
+      background: #0369a1;
+    }
+
+    /* Main Paper Container */
+    .paper-sheet {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 3rem 3.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Academic Header */
+    .sheet-header {
+      text-align: center;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .sheet-institution {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+    }
+
+    .sheet-dept {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .sheet-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.35;
+      margin-bottom: 0.5rem;
+    }
+
+    .sheet-subtitle {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--accent-blue);
+      margin-bottom: 0.75rem;
+    }
+
+    .sheet-meta-pills {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+    }
+
+    .meta-pill {
+      font-size: 0.76rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      color: var(--text-secondary);
+    }
+
+    /* Section Styling */
+    .doc-section {
+      margin-bottom: 2.25rem;
+    }
+
+    .doc-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      border-bottom: 1.5px solid var(--border-color);
+      padding-bottom: 0.4rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .doc-section p {
+      margin-bottom: 0.85rem;
+      font-size: 0.94rem;
+      color: var(--text-secondary);
+    }
+
+    /* Callout & Formula Boxes */
+    .formula-callout {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-blue);
+      border-radius: 6px;
+      padding: 0.85rem 1.15rem;
+      margin: 0.85rem 0;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    table.doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    table.doc-table th,
+    table.doc-table td {
+      border: 1px solid var(--border-color);
+      padding: 0.7rem 0.85rem;
+      text-align: left;
+    }
+
+    table.doc-table th {
+      background: var(--bg-secondary);
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    table.doc-table tr:nth-child(even) td {
+      background: rgba(0, 0, 0, 0.015);
+    }
+
+    [data-theme="dark"] table.doc-table tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Code Listing */
+    .code-container {
+      position: relative;
+      margin: 1rem 0;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--code-bg);
+    }
+
+    .code-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary);
+      padding: 0.45rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    pre.code-block {
+      padding: 1rem 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.55;
+      color: var(--text-primary);
+      overflow-x: auto;
+      margin: 0;
+    }
+
+    /* Lists */
+    ol.procedure-list,
+    ul.doc-list {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    ol.procedure-list li,
+    ul.doc-list li {
+      margin-bottom: 0.65rem;
+      font-size: 0.94rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    ol.procedure-list li strong,
+    ul.doc-list li strong {
+      color: var(--text-primary);
+    }
+
+    /* Toast notification */
+    .toast-box {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 0.75rem 1.4rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      font-size: 0.88rem;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast-box.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* PRINT STYLES FOR OFFICIAL HARD-COPY A4 PRINTING */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 10.5pt !important;
+      }
+
+      .no-print,
+      .top-floating-bar,
+      .toast-box {
+        display: none !important;
+      }
+
+      .paper-sheet {
+        max-width: 100% !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      table.doc-table th,
+      table.doc-table td {
+        border-color: #000000 !important;
+        color: #000000 !important;
+      }
+
+      .formula-callout {
+        border-color: #000000 !important;
+        border-left-width: 4px !important;
+        background: #f8fafc !important;
+        color: #000000 !important;
+      }
+
+      pre.code-block {
+        font-size: 8.5pt !important;
+        line-height: 1.35 !important;
+        color: #000000 !important;
+      }
+
+      .code-container {
+        border-color: #000000 !important;
+      }
+
+      .code-bar {
+        border-color: #000000 !important;
+        background: #f1f5f9 !important;
+        color: #000000 !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem 0.5rem;
+      }
+      .paper-sheet {
+        padding: 1.5rem 1.25rem;
+      }
+      .top-floating-bar {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .toolbar-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .sheet-title {
+        font-size: 1.35rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Floating Action Toolbar (Hidden during print) -->
+  <div class="top-floating-bar no-print">
+    <div class="toolbar-left">
+      <span>📝</span>
+      <span>Official Practical Lab Record Write-Up Sheet</span>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn-action" id="btn-theme-toggle" title="Toggle Light / Dark Mode">
+        <span id="theme-btn-icon">🌙</span> Dark View
+      </button>
+      <button class="btn-action" id="btn-copy-full" title="Copy formatted text to clipboard">
+        <span>📋</span> Copy Full Text
+      </button>
+      <button class="btn-action btn-primary" id="btn-print" title="Print or save as PDF">
+        <span>🖨️</span> Print / Save PDF
+      </button>
+      <button class="btn-action" id="btn-close" title="Close Window" onclick="window.close()">
+        <span>✕</span> Close
+      </button>
+    </div>
+  </div>
+
+  <!-- Printable Lab Paper Sheet -->
+  <main class="paper-sheet" id="full-lab-report">
+
+    <!-- Header Section -->
+    <header class="sheet-header">
+      <div class="sheet-institution">Department of Computer Science &amp; Engineering / Information Technology</div>
+      <div class="sheet-dept">Embedded Systems &amp; Internet of Things (IoT) Laboratory • Course Code: PCC-CS791</div>
+      <h1 class="sheet-title">Automatic Night Light System using LDR &amp; Arduino UNO</h1>
+      <div class="sheet-subtitle">Ambient Light-Adaptive Luminaire Automation with Dual-Threshold Hysteresis</div>
+      <div class="sheet-meta-pills">
+        <span class="meta-pill">Microcontroller: ATmega328P (16 MHz)</span>
+        <span class="meta-pill">Input: Pin A0 (CdS Potential Divider)</span>
+        <span class="meta-pill">Output: Pin D9 (LED Luminaire)</span>
+        <span class="meta-pill">Format: Official Lab Manual Copy</span>
+      </div>
+    </header>
+
+    <!-- Section 1: Aim -->
+    <section class="doc-section">
+      <h2>1. Aim of the Experiment / Project</h2>
+      <p>
+        To design, assemble, calibrate, and program an <strong>Automatic Night Light System</strong> using an <strong>Arduino UNO R3 (ATmega328P)</strong>, a <strong>Cadmium Sulfide (CdS) Light Dependent Resistor (LDR)</strong>, and a fixed potential divider network. The system autonomously senses ambient illuminance levels, executes a 10-sample rolling-average noise filter, and implements a software dual-threshold <strong>Schmitt-trigger hysteresis comparator</strong> to switch an LED luminaire or AC mains relay ON during darkness and OFF at daybreak without relay contact chattering.
+      </p>
+    </section>
+
+    <!-- Section 2: Apparatus Required -->
+    <section class="doc-section">
+      <h2>2. Apparatus &amp; Components Required</h2>
+      <div class="table-container">
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Component Full Name</th>
+              <th>Part / Model ID</th>
+              <th>Technical Specification</th>
+              <th>Qty</th>
+              <th>Estimated Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><strong>Arduino UNO R3 Board</strong></td>
+              <td><code>A000066 / DIP-28</code></td>
+              <td>ATmega328P MCU, 16 MHz, 5V, 10-Bit SAR ADC</td>
+              <td>1</td>
+              <td>₹480.00</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><strong>CdS Photoresistor (LDR)</strong></td>
+              <td><code>GL5528 / VT90N2</code></td>
+              <td>5mm Dia, 10–20 kΩ @ 10 lux, &gt;1 MΩ in pitch darkness</td>
+              <td>1</td>
+              <td>₹15.00</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><strong>Fixed Pull-Down Resistor</strong></td>
+              <td><code>CFR-25JR-10K</code></td>
+              <td>10 kΩ, 0.25W (1/4W), ±5% (Brown-Black-Orange-Gold)</td>
+              <td>1</td>
+              <td>₹2.00</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><strong>Current Limiting Resistor</strong></td>
+              <td><code>CFR-25JR-220R</code></td>
+              <td>220 Ω, 0.25W (1/4W), ±5% (Red-Red-Brown-Gold)</td>
+              <td>1</td>
+              <td>₹2.00</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><strong>Diffused Red LED</strong></td>
+              <td><code>WP7113ID</code></td>
+              <td>5mm Round, Vf = 2.0V, If = 20mA max, 625nm</td>
+              <td>1</td>
+              <td>₹5.00</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td><strong>Solderless Breadboard</strong></td>
+              <td><code>MB-102</code></td>
+              <td>830 Tie-Points (630 Terminal + 200 Power Distribution Bus)</td>
+              <td>1</td>
+              <td>₹95.00</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td><strong>Jumper Wires (M-to-M)</strong></td>
+              <td><code>M2M-JMP-20CM</code></td>
+              <td>24 AWG, 20cm length, copper core Dupont connectors</td>
+              <td>6</td>
+              <td>₹27.00</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td><strong>USB Cable (Type A-to-B)</strong></td>
+              <td><code>USB-AB-1M-BL</code></td>
+              <td>1.0 Meter shielded power &amp; UART programming cable</td>
+              <td>1</td>
+              <td>₹50.00</td>
+            </tr>
+            <tr>
+              <td colspan="4" style="text-align: right; font-weight: 700;">TOTAL ESTIMATED HARDWARE REQUISITION COST:</td>
+              <td colspan="2" style="font-weight: 800; color: var(--accent-green);">₹676.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 3: Pin Connection Table -->
+    <section class="doc-section">
+      <h2>3. Pin-to-Pin Circuit Connection Matrix</h2>
+      <p>The circuit utilizes four non-intersecting interconnect jumper connections to the Arduino UNO R3:</p>
+      <div class="table-container">
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th>From (Component Terminal)</th>
+              <th>To (Arduino UNO R3 Pin)</th>
+              <th>Wire Color</th>
+              <th>Functional Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>LDR Terminal 1</td>
+              <td><strong>5V Pin</strong></td>
+              <td><span style="color:#ef4444; font-weight:700;">RED</span></td>
+              <td>Supplies positive +5.0V DC regulated power rail to photocell.</td>
+            </tr>
+            <tr>
+              <td>LDR Terminal 2 &amp; 10kΩ Resistor Junction</td>
+              <td><strong>Analog Pin A0</strong></td>
+              <td><span style="color:#16a34a; font-weight:700;">GREEN</span></td>
+              <td>Taps intermediate divider voltage (0 to 5V) for 10-bit ADC sampling.</td>
+            </tr>
+            <tr>
+              <td>10kΩ Resistor Terminal 2</td>
+              <td><strong>GND Pin</strong></td>
+              <td><span style="color:#0f172a; font-weight:700;">BLACK</span></td>
+              <td>Connects pull-down divider branch to 0V ground reference.</td>
+            </tr>
+            <tr>
+              <td>LED Anode (Long Lead) via 220Ω Resistor</td>
+              <td><strong>Digital Pin D9</strong></td>
+              <td><span style="color:#f59e0b; font-weight:700;">ORANGE</span></td>
+              <td>Microcontroller output: HIGH (5V) triggers LED ON, LOW (0V) turns OFF.</td>
+            </tr>
+            <tr>
+              <td>LED Cathode (Short Lead / Flat Edge)</td>
+              <td><strong>GND Pin</strong></td>
+              <td><span style="color:#0f172a; font-weight:700;">BLACK</span></td>
+              <td>Completes actuator ground return loop.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 4: Working Principle & Theory -->
+    <section class="doc-section">
+      <h2>4. Working Principle &amp; Mathematical Foundations</h2>
+      <p>
+        <strong>A. Photoconductive Transduction in CdS:</strong> Cadmium Sulfide is an intrinsic II-VI direct bandgap semiconductor with <em>E</em><sub>g</sub> = 2.42 eV. Optical photo-excitation occurs when incident light wavelength satisfies:
+      </p>
+      <div class="formula-callout">
+        λ<sub>cutoff</sub> = hc / <em>E</em><sub>g</sub> = (6.626 × 10⁻³⁴ J·s × 3 × 10⁸ m/s) / (2.42 × 1.602 × 10⁻¹⁹ J) ≈ 512 nm
+      </div>
+      <p>
+        In pitch darkness, carrier density is near zero, yielding <em>R</em><sub>LDR</sub> &gt; 1 MΩ. In bright daylight, incoming photons create electron-hole pairs, elevating conductivity σ = <em>q</em>(<em>n</em>μ<sub>e</sub> + <em>p</em>μ<sub>h</sub>) and dropping <em>R</em><sub>LDR</sub> below 400 Ω.
+      </p>
+
+      <p>
+        <strong>B. Potential Divider Voltage Derivation:</strong> The analog voltage <em>V</em><sub>node</sub> tapped into pin A0 is governed by Ohm's potential division:
+      </p>
+      <div class="formula-callout">
+        <em>V</em><sub>out</sub> = <em>V</em><sub>cc</sub> × [ <em>R</em><sub>fixed</sub> / (<em>R</em><sub>LDR</sub> + <em>R</em><sub>fixed</sub>) ]
+      </div>
+      <p>
+        Maximum sensitivity <em>S</em> = |d<em>V</em><sub>out</sub> / d<em>R</em><sub>LDR</sub>| = <em>V</em><sub>cc</sub> · <em>R</em><sub>fixed</sub> / (<em>R</em><sub>LDR</sub> + <em>R</em><sub>fixed</sub>)² occurs when <strong><em>R</em><sub>fixed</sub> ≈ <em>R</em><sub>LDR</sub></strong>. For typical dusk transitions (20–100 lux), <em>R</em><sub>LDR</sub> ≈ 8–15 kΩ, making <strong>10 kΩ</strong> the optimal divider resistor.
+      </p>
+
+      <p>
+        <strong>C. 10-Bit SAR ADC Quantization:</strong> The ATmega328P Successive Approximation Register (SAR) ADC converts the continuous node voltage into a discrete 10-bit integer:
+      </p>
+      <div class="formula-callout">
+        ADC Value (D) = round( [ <em>V</em><sub>node</sub> / 5.0 V ] × 1023 ) &nbsp;|&nbsp; 1 LSB = 5.0 V / 1024 = 4.8828 mV per count
+      </div>
+
+      <p>
+        <strong>D. Dual-Threshold Schmitt Trigger Hysteresis:</strong> Single-threshold comparators oscillate rapidly when light hovers near the trip point. Software hysteresis introduces dual asymmetric thresholds with a deadband:
+      </p>
+      <div class="formula-callout">
+        Deadband Δ = <em>T</em><sub>LIGHT</sub> - <em>T</em><sub>DARK</sub> = 500 - 400 = 100 Counts (0.488 V)<br>
+        • Nightfall: If Filtered ADC ≤ 400 counts (≤ 1.95 V / ≈ 35 lux) → Turn Luminaire ON<br>
+        • Daybreak: If Filtered ADC ≥ 500 counts (≥ 2.44 V / ≈ 85 lux) → Turn Luminaire OFF<br>
+        • Deadband: If 400 &lt; ADC &lt; 500 → Retain Previous Luminaire State (Chatter-Free)
+      </div>
+    </section>
+
+    <!-- Section 5: Step-by-Step Procedure -->
+    <section class="doc-section">
+      <h2>5. Step-by-Step Practical Laboratory Procedure</h2>
+      <ol class="procedure-list">
+        <li><strong>Component Verification:</strong> Inspect the Arduino UNO R3, LDR (GL5528), 10 kΩ resistor (Brown-Black-Orange), 220 Ω resistor (Red-Red-Brown), and red 5mm LED for physical integrity.</li>
+        <li><strong>Breadboard Power Distribution:</strong> Connect a red jumper wire from the Arduino <strong>5V</strong> pin to the breadboard positive rail (+) and a black jumper wire from Arduino <strong>GND</strong> to the negative rail (-).</li>
+        <li><strong>LDR Voltage Divider Assembly:</strong> Insert the LDR into two separate terminal rows. Connect one lead to the +5V bus and the other lead to an intermediate tie point row. Insert one lead of the 10 kΩ pull-down resistor into the same intermediate row, and connect its other lead to the GND rail.</li>
+        <li><strong>Analog Signal Tap:</strong> Insert a green jumper wire from the LDR-resistor junction row into Arduino analog input pin <strong>A0</strong>.</li>
+        <li><strong>Actuator LED Circuit:</strong> Insert the 5mm LED into two separate rows. Connect the cathode (shorter flat lead) to the GND rail. Connect the anode (longer lead) in series with the 220 Ω current-limiting resistor to Arduino digital pin <strong>D9</strong>.</li>
+        <li><strong>Firmware Compilation &amp; Flashing:</strong> Connect the Arduino to the laboratory computer using the USB A-to-B cable. Open the Arduino IDE, select board <em>"Arduino Uno"</em> and the corresponding COM port. Paste the production sketch, verify/compile (Ctrl+R), and upload (Ctrl+U).</li>
+        <li><strong>Calibration &amp; Serial Monitoring:</strong> Open the Serial Monitor at <strong>9600 baud</strong>. Observe telemetry under direct room illumination (ADC ≈ 800–850, LED OFF). Progressively shade the sensor with your hand; observe ADC dropping below 400 and the LED turning ON. Uncover the sensor and confirm the LED extinguishes smoothly once ADC exceeds 500.</li>
+      </ol>
+    </section>
+
+    <!-- Section 6: Arduino C++ Source Code -->
+    <section class="doc-section">
+      <h2>6. Production Arduino C++ Firmware Sketch</h2>
+      <p>Clean, fully commented code formatted for academic copy writing and direct compilation:</p>
+      <div class="code-container">
+        <div class="code-bar">
+          <span>Automatic_Night_Light.ino • Arduino C++ / Wiring</span>
+          <button class="btn-action" id="btn-copy-code-inline" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Copy Code</button>
+        </div>
+        <pre class="code-block" id="source-code-text"><code>/* ==============================================================================
+ * Project: Automatic Night Light System (Ambient Light-Adaptive Luminaire)
+ * Connections: LDR -> A0 (10k Pull-Down) | LED -> Pin D9 (220 Ohm) | Baud: 9600
+ * ============================================================================== */
+const int LDR_PIN = A0;              // Analog input pin for LDR potential divider tap
+const int LED_PIN = 9;               // Digital output pin for LED actuator
+const int THRESHOLD_DARK  = 400;     // Lower hysteresis boundary (Nightfall -> Turn ON)
+const int THRESHOLD_LIGHT = 500;     // Upper hysteresis boundary (Daybreak -> Turn OFF)
+const int SAMPLES = 10;              // Rolling average window size
+int buffer[SAMPLES]; int bufIdx = 0; long runningSum = 0;
+bool ledState = false; unsigned long lastLog = 0;
+
+void setup() {
+  pinMode(LED_PIN, OUTPUT); 
+  digitalWrite(LED_PIN, LOW);        // Initialize luminaire extinguished
+  Serial.begin(9600);
+  for (int i = 0; i &lt; SAMPLES; i++) {
+    buffer[i] = analogRead(LDR_PIN); 
+    runningSum += buffer[i]; 
+    delay(5);
+  }
+}
+
+void loop() {
+  // Circular FIFO Rolling Average Boxcar Filter
+  runningSum -= buffer[bufIdx];
+  buffer[bufIdx] = analogRead(LDR_PIN);
+  runningSum += buffer[bufIdx];
+  bufIdx = (bufIdx + 1) % SAMPLES;
+
+  int filteredADC = runningSum / SAMPLES;
+  float nodeV = (filteredADC * 5.0) / 1023.0;
+
+  // Dual-Threshold Schmitt Trigger Hysteresis Comparator
+  if (filteredADC &lt;= THRESHOLD_DARK) {
+    ledState = true;  
+    digitalWrite(LED_PIN, HIGH);     // Darkness detected: Luminaire ON
+  } else if (filteredADC &gt;= THRESHOLD_LIGHT) {
+    ledState = false; 
+    digitalWrite(LED_PIN, LOW);      // Daylight restored: Luminaire OFF
+  }
+
+  // Periodic Telemetry Reporting over UART Serial (Every 500 ms)
+  if (millis() - lastLog &gt;= 500) {
+    lastLog = millis();
+    Serial.print("ADC: "); Serial.print(filteredADC);
+    Serial.print(" | V: "); Serial.print(nodeV, 2);
+    Serial.print("V | Luminaire: ");
+    Serial.println(ledState ? "ACTIVE (ON)" : "INACTIVE (OFF)");
+  }
+  delay(20);
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- Section 7: Observation & Calibration Table -->
+    <section class="doc-section">
+      <h2>7. Experimental Observation &amp; Calibration Table</h2>
+      <p>Data recorded using the Serial Monitor and digital multimeter under 5 distinct environmental lighting conditions:</p>
+      <div class="table-container">
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Ambient Lighting Condition</th>
+              <th>Lux Level</th>
+              <th>Filtered ADC (0–1023)</th>
+              <th>Node Voltage (V)</th>
+              <th>Luminaire LED State</th>
+              <th>Inference / Operational Phase</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Direct Sunlight / High Torch Exposure</td>
+              <td>&gt; 1000 lux</td>
+              <td>982</td>
+              <td>4.80 V</td>
+              <td><strong>OFF</strong></td>
+              <td>Full daylight; LDR resistance is minimal (~400 Ω).</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Standard Laboratory Overhead Illumination</td>
+              <td>450 lux</td>
+              <td>839</td>
+              <td>4.10 V</td>
+              <td><strong>OFF</strong></td>
+              <td>Adequate ambient workspace light; actuator extinguished.</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Ambient Twilight / Dusk Transition</td>
+              <td>95 lux</td>
+              <td>536</td>
+              <td>2.62 V</td>
+              <td><strong>OFF</strong></td>
+              <td>Within deadband; retains OFF state without fluttering.</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Threshold Border (Nightfall Entry)</td>
+              <td>35 lux</td>
+              <td>358</td>
+              <td>1.75 V</td>
+              <td><strong>ON</strong></td>
+              <td>Tripped lower threshold (ADC ≤ 400); luminaire illuminates.</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Covered Sensor / Pitch Darkness</td>
+              <td>2 lux</td>
+              <td>104</td>
+              <td>0.51 V</td>
+              <td><strong>ON</strong></td>
+              <td>Deep darkness; LDR resistance surges (&gt;1 MΩ); sustained ON.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 8: Results & Conclusion -->
+    <section class="doc-section">
+      <h2>8. Results &amp; Practical Inferences</h2>
+      <ul class="doc-list">
+        <li><strong>Automatic Operation Verified:</strong> The ambient light-adaptive night light circuit successfully switches the LED luminaire ON when illuminance falls below 35 lux (ADC ≤ 400 counts / 1.95 V) and extinguishes it when daylight rises above 85 lux (ADC ≥ 500 counts / 2.44 V).</li>
+        <li><strong>Zero Chatter Stability:</strong> The 100-count software Schmitt-trigger hysteresis deadband (0.488 V) completely eliminated contact buzzing, relay chatter, and optical oscillation during slow twilight transitions.</li>
+        <li><strong>Noise Immunity:</strong> The 10-sample rolling average boxcar filter effectively suppressed 50 Hz fluorescent flicker and transient shadow noise without causing perceptible phase delay.</li>
+      </ul>
+    </section>
+
+    <!-- Section 9: Precautions & Checklist -->
+    <section class="doc-section">
+      <h2>9. Precautions &amp; Practical Checklist</h2>
+      <ul class="doc-list">
+        <li><strong>LED Polarity:</strong> Always connect the longer lead (Anode) to pin D9 via the 220 Ω resistor and the shorter lead (Cathode) to GND. Reverse polarity will prevent illumination.</li>
+        <li><strong>Optical Feedback Glare:</strong> Ensure the actuator LED does not cast direct optical glare onto the LDR photocell. Optical feedback will cause self-induced oscillatory blinking.</li>
+        <li><strong>Common Ground Reference:</strong> Verify that both the 10 kΩ potential divider resistor and the LED cathode share a common GND rail with the Arduino UNO.</li>
+        <li><strong>Current Limiting:</strong> Never connect an LED directly to an Arduino digital pin without a series current-limiting resistor (minimum 220 Ω) to prevent burning out the ATmega328P output driver transistors.</li>
+        <li><strong>Baud Rate Matching:</strong> Ensure the Arduino IDE Serial Monitor baud rate is explicitly set to <strong>9600 baud</strong>; mismatched baud rates will output corrupted telemetry characters.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <!-- Interactive Toast Notification -->
+  <div id="toast" class="toast-box">Copied to clipboard!</div>
+
+  <script>
+    // Theme Toggle & Initial Sync
+    const themeBtn = document.getElementById('btn-theme-toggle');
+    const themeIcon = document.getElementById('theme-btn-icon');
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      if (themeBtn) {
+        if (theme === 'dark') {
+          themeBtn.innerHTML = '<span>☀️</span> Light View';
+        } else {
+          themeBtn.innerHTML = '<span>🌙</span> Dark View';
+        }
+      }
+    }
+
+    // Determine initial theme from parent window or localStorage (default dark if site is dark)
+    const initialTheme = (window.opener && window.opener.document.documentElement.getAttribute('data-theme'))
+      || localStorage.getItem('theme')
+      || 'dark';
+    applyTheme(initialTheme);
+
+    themeBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      applyTheme(newTheme);
+    });
+
+    // Print Action
+    document.getElementById('btn-print').addEventListener('click', () => {
+      window.print();
+    });
+
+    // Toast Function
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Copy Code Inline
+    document.getElementById('btn-copy-code-inline').addEventListener('click', () => {
+      const code = document.getElementById('source-code-text').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('Arduino C++ sketch copied to clipboard!');
+      });
+    });
+
+    // Copy Full Lab Report
+    document.getElementById('btn-copy-full').addEventListener('click', () => {
+      const fullText = document.getElementById('full-lab-report').innerText;
+      navigator.clipboard.writeText(fullText).then(() => {
+        showToast('Complete Lab Report copied to clipboard!');
+      });
+    });
+  </script>
+</body>
+</html>

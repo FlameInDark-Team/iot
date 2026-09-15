@@ -1130,6 +1130,74 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // --- OFFICIAL LAB WRITE-UP ACTION HANDLERS ---
+  const btnOpenSeparateWindow = document.getElementById('btn-open-separate-window');
+  if (btnOpenSeparateWindow) {
+    btnOpenSeparateWindow.addEventListener('click', () => {
+      const popout = window.open(
+        'lab_writeup.html',
+        'LabWriteUpWindow',
+        'width=1120,height=900,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes'
+      );
+      if (popout) {
+        popout.focus();
+        showToast('Opened official write-up in separate floating window!');
+      } else {
+        window.open('lab_writeup.html', '_blank');
+        showToast('Popup blocked — opened write-up in new browser tab!');
+      }
+    });
+  }
+
+  const btnOpenNewTab = document.getElementById('btn-open-new-tab');
+  if (btnOpenNewTab) {
+    btnOpenNewTab.addEventListener('click', () => {
+      window.open('lab_writeup.html', '_blank');
+      showToast('Opened official write-up in new tab!');
+    });
+  }
+
+  const btnPrintWriteup = document.getElementById('btn-print-writeup');
+  if (btnPrintWriteup) {
+    btnPrintWriteup.addEventListener('click', () => {
+      const printWin = window.open('lab_writeup.html', '_blank');
+      if (printWin) {
+        printWin.addEventListener('load', () => {
+          printWin.print();
+        });
+        showToast('Opening print / PDF dialog for lab report...');
+      }
+    });
+  }
+
+  const btnCopyFullWriteup = document.getElementById('btn-copy-full-writeup');
+  if (btnCopyFullWriteup) {
+    btnCopyFullWriteup.addEventListener('click', () => {
+      const writeupBody = document.getElementById('writeup-content-body');
+      if (writeupBody) {
+        navigator.clipboard.writeText(writeupBody.innerText).then(() => {
+          showToast('Complete Lab Record write-up copied to clipboard!');
+        }).catch(() => {
+          showToast('Failed to copy text.');
+        });
+      }
+    });
+  }
+
+  const btnCopyWriteupCode = document.getElementById('btn-copy-writeup-code');
+  if (btnCopyWriteupCode) {
+    btnCopyWriteupCode.addEventListener('click', () => {
+      const codeBlock = document.getElementById('writeup-code-display');
+      if (codeBlock) {
+        navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+          showToast('Arduino C++ sketch copied to clipboard!');
+        }).catch(() => {
+          showToast('Failed to copy code.');
+        });
+      }
+    });
+  }
+
   function showToast(msg) {
     toastMsg.textContent = msg;
     toast.classList.add('show');
