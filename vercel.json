@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/Project_Automatic_Night_Light/web_simulation/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/Project_Automatic_Night_Light/web_simulation/$1"
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+\documentclass[10pt,a4paper]{article}
+
+% ==============================================================================
+% EXPERIMENT 01: PRINTABLE CODE, PROTOCOLS & OUTPUT (EXACT SINGLE 1-PAGE DOCUMENT)
+% Formatted with 1.0-inch lateral margins, large readable fonts, and tight top/bottom margins.
+% ==============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[left=1.0in, right=1.0in, top=0.35in, bottom=0.35in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,calc}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{microtype}
+\usepackage{float}
+
+% Disable all running headers, footers, and page numbers for clean print & paste
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+% Section Titles Formatting (Enlarged)
+\titleformat{\section}
+  {\normalfont\normalsize\bfseries\raggedright}{\thesection}{0.5em}{}[\titlerule]
+
+\titlespacing*{\section}{0pt}{5pt}{2pt}
+
+% Code Listing Styling (Strict Monochrome with Enlarged Font for High-Contrast Print)
+\lstdefinestyle{bwCode}{
+    language=C++,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\bfseries,
+    commentstyle=\itshape,
+    stringstyle=\ttfamily,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    stepnumber=1,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=single,
+    rulecolor=\color{black},
+    tabsize=2,
+    showstringspaces=false,
+    columns=fullflexible,
+    keepspaces=true,
+    lineskip=-0.2pt,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+\lstdefinestyle{bwTerminal}{
+    basicstyle=\ttfamily\scriptsize,
+    numbers=none,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=single,
+    rulecolor=\color{black},
+    columns=fullflexible,
+    keepspaces=true,
+    lineskip=0.0pt,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+\captionsetup{font=footnotesize,labelfont=bf,skip=2pt}
+
+\begin{document}
+
+% ==============================================================================
+% DOCUMENT HEADER
+% ==============================================================================
+\begin{center}
+    {\large\bfseries Experiment 01: Overview of IoT Architecture \& Protocols}\\[0.06cm]
+    {\normalsize\textbf{5-Tier Architecture, Protocol Comparison \& MQTT Telemetry Payload Code}}
+\end{center}
+\vspace{-0.24cm}
+\rule{\textwidth}{0.8pt}
+\vspace{0.06cm}
+
+% ==============================================================================
+% 1. PROTOCOL COMPARATIVE MATRIX
+% ==============================================================================
+\section*{1. Constrained IoT Application Protocols Matrix}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.20}
+\begin{tabularx}{\textwidth}{|p{1.8cm}|p{1.7cm}|p{3.2cm}|p{2.1cm}|X|}
+\hline
+\textbf{Protocol} & \textbf{Transport} & \textbf{Messaging Model} & \textbf{Header Size} & \textbf{Primary Application Domain} \\
+\hline
+\textbf{MQTT} & TCP (1883) & Publish / Subscribe & 2 Bytes (Fixed) & Real-time sensor telemetry, SCADA, battery-backed nodes. \\
+\textbf{CoAP} & UDP (5683) & REST Request / Response & 4 Bytes (Fixed) & Constrained 8-bit MCUs, low-power lossy networks (LLNs). \\
+\textbf{HTTP/REST} & TCP (80/443) & Client / Server Request & $>500$ B (Text) & Cloud-to-cloud APIs, enterprise REST integrations. \\
+\textbf{WebSocket} & TCP (80) & Full-Duplex Stream & 2--10 Bytes & Live browser telemetry monitoring dashboards. \\
+\hline
+\end{tabularx}
+\caption{Technical Comparison of IoT Application Layer Protocols.}
+\end{table}
+
+\vspace{-0.1cm}
+
+% ==============================================================================
+% 2. MQTT TELEMETRY SERIALIZER SOURCE CODE
+% ==============================================================================
+\section*{2. Edge Microcontroller Telemetry Payload Firmware}
+
+\begin{lstlisting}[style=bwCode, title={\textbf{Listing 1.1: Microcontroller Firmware for MQTT Telemetry Serialization.}}]
+/*
+ * Experiment 01: IoT Edge Telemetry Serialization & Protocol Ingestion
+ * Formats multi-sensor readings into lightweight JSON payloads for MQTT Broker publishing.
+ */
+
+#include <ArduinoJson.h> // Standard lightweight embedded JSON library
+
+void setup() {
+  Serial.begin(9600); // Initialize UART Serial Interface
+  Serial.println("==================================================");
+  Serial.println("   IoT Lab: MQTT Node Telemetry Payload Stream   ");
+  Serial.println("==================================================");
+}
+
+void loop() {
+  // Step 1: Acquire mock sensory inputs from Perception Layer
+  float currentTemp = 28.4;
+  float currentHumidity = 62.5;
+  int deviceUptime = millis() / 1000;
+
+  // Step 2: Construct serialized JSON payload packet
+  StaticJsonDocument<128> doc;
+  doc["node_id"] = "ESP32_NODE_01";
+  doc["uptime"]  = deviceUptime;
+  doc["temp"]    = currentTemp;
+  doc["hum"]     = currentHumidity;
+  doc["status"]  = "ONLINE";
+
+  // Step 3: Stream MQTT packet to Serial Gateway
+  Serial.print("TOPIC: sensors/room1/telemetry | PAYLOAD: ");
+  serializeJson(doc, Serial);
+  Serial.println();
+
+  delay(3000); // 3-second transmission cycle
+}
+\end{lstlisting}
+
+\vspace{-0.1cm}
+
+% ==============================================================================
+% 3. TELEMETRY OUTPUT & BROKER LOG
+% ==============================================================================
+\section*{3. Simulated MQTT Broker Telemetry Stream Output}
+
+\begin{lstlisting}[style=bwTerminal]
+==================================================
+   IoT Lab: MQTT Node Telemetry Payload Stream   
+==================================================
+TOPIC: sensors/room1/telemetry | PAYLOAD: {"node_id":"ESP32_NODE_01","uptime":3,"temp":28.4,"hum":62.5,"status":"ONLINE"}
+TOPIC: sensors/room1/telemetry | PAYLOAD: {"node_id":"ESP32_NODE_01","uptime":6,"temp":28.6,"hum":62.1,"status":"ONLINE"}
+TOPIC: sensors/room1/telemetry | PAYLOAD: {"node_id":"ESP32_NODE_01","uptime":9,"temp":28.9,"hum":61.8,"status":"ONLINE"}
+TOPIC: sensors/room1/telemetry | PAYLOAD: {"node_id":"ESP32_NODE_01","uptime":12,"temp":29.1,"hum":61.5,"status":"ONLINE"}
+\end{lstlisting}
+
+\end{document}

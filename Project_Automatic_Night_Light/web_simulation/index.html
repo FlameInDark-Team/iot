@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automatic Night Light System — Interactive IoT Simulation & Engineering Portal</title>
+  <meta name="description" content="Interactive web simulation, circuit visualizer, real-time oscilloscope, C++ firmware studio, and engineering guide for the Automatic Night Light System using Arduino UNO and LDR.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Sticky Navigation Header -->
+  <header class="site-header">
+    <div class="brand-wrapper">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <h1>NightLight IoT Lab</h1>
+        <span>Arduino UNO R3 • Smart Luminaire</span>
+      </div>
+    </div>
+
+    <!-- Mobile Hamburger Toggle -->
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+
+    <nav class="main-nav" id="main-nav">
+      <a href="#" data-page="simulator" class="active">Simulator</a>
+      <a href="#" data-page="process-flow">Process Flow</a>
+      <a href="#" data-page="circuit-diagram">Circuit</a>
+      <a href="#" data-page="code-studio">Firmware</a>
+      <a href="#" data-page="theory">Theory</a>
+      <a href="#" data-page="calculator">Calculator</a>
+      <a href="#" data-page="bom-section">BOM & Cost</a>
+      <a href="#" data-page="viva-section">Viva Quiz</a>
+    </nav>
+
+    <div class="header-actions">
+      <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle Theme" title="Toggle Light / Dark Mode">
+        <span class="theme-icon sun-icon">☀️</span>
+        <span class="theme-icon moon-icon">🌙</span>
+        <span class="theme-slider"></span>
+      </button>
+      <div class="badge-status">
+        <div class="badge-pulse"></div>
+        <span>SIMULATION ONLINE</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Portal Container -->
+  <main class="portal-container">
+
+    <!-- Hero Banner (Always Visible) -->
+    <section class="hero-banner">
+      <div class="hero-tag">
+        <span>Microcontroller Laboratory Project</span>
+        <span>•</span>
+        <span>ECE / CSE / IT Department</span>
+      </div>
+      <h2 class="hero-title">Ambient Light-Adaptive Luminaire Automation System</h2>
+      <p class="hero-subtitle">
+        An industrial-grade IoT night light incorporating Cadmium Sulfide (CdS) photoconductivity, a 10-sample moving average noise filter, and dual-threshold Schmitt-trigger software hysteresis.
+      </p>
+
+      <div class="hero-metrics-bar">
+        <div class="hero-metric-item">
+          <span class="hero-metric-val">10-Bit</span>
+          <span class="hero-metric-lbl">SAR ADC Resolution</span>
+        </div>
+        <div class="hero-metric-item">
+          <span class="hero-metric-val">4.887 mV</span>
+          <span class="hero-metric-lbl">Quantization Step</span>
+        </div>
+        <div class="hero-metric-item">
+          <span class="hero-metric-val">100 Counts</span>
+          <span class="hero-metric-lbl">Hysteresis Deadband</span>
+        </div>
+        <div class="hero-metric-item">
+          <span class="hero-metric-val">50 Hz</span>
+          <span class="hero-metric-lbl">Sampling Frequency</span>
+        </div>
+        <div class="hero-metric-item">
+          <span class="hero-metric-val">₹676.00</span>
+          <span class="hero-metric-lbl">Total BOM Cost</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 1: LIVE INTERACTIVE SIMULATION WORKBENCH -->
+    <section id="simulator" class="glass-section page-section active-page">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h2><span>🎛️</span> Interactive Circuit Simulator & Telemetry</h2>
+          <p>Drag the ambient lux slider or click environment presets to test the sensor response, hysteresis switching, oscilloscope waveforms, and serial telemetry.</p>
+        </div>
+        <div id="deadband-alert" class="deadband-banner" style="display: none;">
+          <span>⚠️</span> <strong>Hysteresis Deadband Active (400–500):</strong> Prevents flickering by retaining previous state.
+        </div>
+      </div>
+
+      <div class="simulation-workbench">
+        <!-- Left: Controls & Telemetry Gauges -->
+        <div class="sim-controls-panel">
+          <!-- Virtual Ambient Room & Sky Illumination Window -->
+          <div id="virtual-room-window" class="virtual-room-window">
+            <div class="sky-backdrop day" id="sky-backdrop">
+              <div class="celestial-body sun" id="celestial-sun"></div>
+              <div class="celestial-body moon" id="celestial-moon"></div>
+              <div class="stars-layer" id="stars-layer"></div>
+            </div>
+            <div class="room-interior">
+              <div class="room-wall"></div>
+              <div class="lamp-fixture" id="room-lamp-fixture">
+                <div class="lamp-bulb" id="room-lamp-bulb"></div>
+                <div class="lamp-light-beam" id="room-light-beam"></div>
+              </div>
+              <div class="sensor-mount">
+                <div class="micro-ldr" id="micro-ldr" title="CdS Photocell on Desk"></div>
+              </div>
+              <div class="room-caption" id="room-caption">
+                <span id="room-atmosphere-text">☀️ Daylight Environment</span>
+                <span id="room-lux-text">450 Lux</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Variable Auto-Animation Dynamic Telemetry Switch Card -->
+          <div class="control-card auto-demo-card">
+            <div class="auto-demo-header">
+              <div class="auto-demo-title-group">
+                <div class="auto-demo-pill-tag">DYNAMIC AUTOMATION</div>
+                <h3 class="auto-demo-title">
+                  <span>⚡</span> Auto-Cycle Telemetry Simulator
+                </h3>
+                <p class="auto-demo-desc">Smooth continuous lux modulation across daylight, dusk, deadband &amp; darkness</p>
+              </div>
+              <div class="toggle-switch-wrapper">
+                <span class="toggle-status-label" id="auto-demo-label">OFF</span>
+                <label class="switch-toggle" title="Toggle Auto-Animation Simulation">
+                  <input type="checkbox" id="auto-demo-toggle">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div id="auto-demo-expanded-controls" class="auto-demo-expanded" style="display: none;">
+              <div class="auto-demo-controls-row">
+                <span class="speed-label">Modulation Speed:</span>
+                <div class="speed-buttons-pill">
+                  <button type="button" class="btn-speed" data-speed="0.5">0.5× Slow</button>
+                  <button type="button" class="btn-speed active" data-speed="1.0">1.0× Normal</button>
+                  <button type="button" class="btn-speed" data-speed="2.0">2.0× Rapid</button>
+                </div>
+              </div>
+              
+              <div class="auto-demo-status-banner">
+                <div class="status-pulse-dot"></div>
+                <span id="auto-demo-phase-text">Phase: Midday Illumination (~950 Lux)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lux Slider Card -->
+          <div class="control-card">
+            <div class="control-label-row">
+              <span class="control-title">Ambient Illuminance (Lux)</span>
+              <span id="lux-badge" class="control-badge-val">450 Lux</span>
+            </div>
+            <div class="lux-slider-wrapper">
+              <input type="range" id="lux-slider" class="lux-slider" min="1" max="1200" value="450" step="1">
+              <div class="slider-ticks">
+                <span>0 lx (Pitch Dark)</span>
+                <span>400 lx (Lab Light)</span>
+                <span>1200 lx (Sunlight)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Environment Presets -->
+          <div class="control-card">
+            <span class="control-title">Quick Lighting Presets</span>
+            <div class="preset-buttons-grid">
+              <button class="btn-preset" data-lux="1100">
+                <strong>Direct Sunlight</strong>
+                <span class="p-val">1100 lx (ADC ~985)</span>
+              </button>
+              <button class="btn-preset active" data-lux="450">
+                <strong>Lab Overhead</strong>
+                <span class="p-val">450 lx (ADC ~840)</span>
+              </button>
+              <button class="btn-preset" data-lux="95">
+                <strong>Dusk Twilight</strong>
+                <span class="p-val">95 lx (ADC ~535)</span>
+              </button>
+              <button class="btn-preset" data-lux="35">
+                <strong>Nightfall Entry</strong>
+                <span class="p-val">35 lx (ADC ~360)</span>
+              </button>
+              <button class="btn-preset" data-lux="2">
+                <strong>Pitch Darkness</strong>
+                <span class="p-val">2 lx (ADC ~105)</span>
+              </button>
+              <button class="btn-preset" data-lux="460">
+                <strong>Hysteresis Band</strong>
+                <span class="p-val">70 lx (Deadband)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Gauges Grid -->
+          <div class="metrics-gauges-grid">
+            <div class="gauge-box">
+              <div class="gauge-header">
+                <span>LDR Resistance</span>
+                <span>R_LDR</span>
+              </div>
+              <div id="val-rldr" class="gauge-value">5.1 kΩ</div>
+              <div class="gauge-bar-track"><div id="bar-rldr" class="gauge-bar-fill" style="width: 25%;"></div></div>
+            </div>
+
+            <div class="gauge-box">
+              <div class="gauge-header">
+                <span>Divider Voltage</span>
+                <span>A0 Node</span>
+              </div>
+              <div id="val-nodev" class="gauge-value">3.31 V</div>
+              <div class="gauge-bar-track"><div id="bar-nodev" class="gauge-bar-fill" style="width: 66%;"></div></div>
+            </div>
+
+            <div class="gauge-box">
+              <div class="gauge-header">
+                <span>Raw ADC</span>
+                <span>10-Bit</span>
+              </div>
+              <div id="val-rawadc" class="gauge-value">678</div>
+              <div class="gauge-bar-track"><div id="bar-rawadc" class="gauge-bar-fill" style="width: 66%;"></div></div>
+            </div>
+
+            <div class="gauge-box">
+              <div class="gauge-header">
+                <span>Filtered ADC</span>
+                <span>Moving Avg</span>
+              </div>
+              <div id="val-filteredadc" class="gauge-value">678</div>
+              <div class="gauge-bar-track"><div id="bar-filteredadc" class="gauge-bar-fill" style="width: 66%;"></div></div>
+            </div>
+          </div>
+
+          <!-- Luminaire Actuator Status Card -->
+          <div id="luminaire-card" class="luminaire-state-card">
+            <div class="luminaire-info">
+              <span class="luminaire-label">Actuator Output (Pin D9)</span>
+              <span id="luminaire-status-text" class="luminaire-status-text">EXTINGUISHED (OFF)</span>
+              <span id="luminaire-subtext" style="font-size: 0.75rem; color: var(--text-muted);">Ambient illumination is sufficient.</span>
+            </div>
+            <div class="virtual-lamp-indicator">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zm-2 18c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-1h-4v1z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Real-Time Oscilloscope & UART Serial Terminal -->
+        <div class="circuit-visualizer-container">
+          <!-- Dual-Channel Real-Time Oscilloscope -->
+          <div class="oscilloscope-card">
+            <div class="scope-header">
+              <div class="scope-title">
+                <span>📈</span> Real-Time Digital Oscilloscope (50 Hz Sampling)
+              </div>
+              <div class="scope-legend">
+                <div class="scope-legend-item">
+                  <div class="legend-dot" style="background: var(--accent-cyan);"></div>
+                  <span>CH1: Filtered ADC (0–1023)</span>
+                </div>
+                <div class="scope-legend-item">
+                  <div class="legend-dot" style="background: var(--accent-rose);"></div>
+                  <span>CH2: Pin D9 State (HIGH/LOW)</span>
+                </div>
+                <div class="scope-legend-item">
+                  <div class="legend-dot" style="background: rgba(245, 158, 11, 0.7);"></div>
+                  <span>Deadband (400–500)</span>
+                </div>
+              </div>
+            </div>
+            <canvas id="oscilloscope-canvas" width="680" height="200"></canvas>
+          </div>
+
+          <!-- Virtual UART Serial Monitor -->
+          <div class="serial-terminal-card">
+            <div class="terminal-header">
+              <div class="terminal-title">
+                <span>💻</span> COM3 Serial Monitor (9600 Baud, 8N1)
+              </div>
+              <div class="terminal-actions">
+                <button id="btn-clear-term" class="btn-terminal">Clear</button>
+                <button id="btn-pause-term" class="btn-terminal">Pause</button>
+                <button id="btn-autoscroll-term" class="btn-terminal" style="color: var(--accent-cyan);">Auto-Scroll: ON</button>
+              </div>
+            </div>
+            <div id="terminal-viewport" class="terminal-viewport">
+              <div class="log-entry">
+                <span class="log-time">[+0.000s]</span>
+                <span class="log-msg-off">UART Boot Initialized. Rolling buffer primed (10 samples).</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 2: PROCESS FLOW ANIMATION -->
+    <section id="process-flow" class="glass-section page-section">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h2><span>🔄</span> Process Flow Architecture & Step-by-Step State Evolution</h2>
+          <p>Step through the five signal processing stages that transform raw physical photons into a stable, flicker-free luminaire switching decision.</p>
+        </div>
+        <button id="btn-play-flow" class="btn-flow btn-flow-play">
+          <span>▶</span> Play Guided Cycle Animation
+        </button>
+      </div>
+
+      <div class="process-flow-container">
+        <!-- Stepper Navigation Nodes -->
+        <div class="flow-stepper-nav">
+          <div class="flow-step-node active" data-step="1">1</div>
+          <div class="flow-step-node" data-step="2">2</div>
+          <div class="flow-step-node" data-step="3">3</div>
+          <div class="flow-step-node" data-step="4">4</div>
+          <div class="flow-step-node" data-step="5">5</div>
+        </div>
+
+        <!-- Narrative Card -->
+        <div id="step-narrative-card" class="step-narrative-card">
+          <div class="step-content">
+            <div id="step-badge" class="step-badge">STAGE 1 OF 5 • SENSOR TRANSDUCTION</div>
+            <h3 id="step-heading" class="step-heading">Photoconductive Excitation in Cadmium Sulfide (CdS)</h3>
+            <p id="step-description" class="step-description">
+              When ambient photons possessing energy greater than the semiconductor bandgap ($h\nu \ge E_g \approx 2.42\,\text{eV}$) strike the ceramic CdS active area, valence electrons are excited across the forbidden energy gap into the conduction band. The resulting surge in free electron-hole pairs drastically decreases the bulk resistance from over $100\,\text{k}\Omega$ in darkness to less than $1\,\text{k}\Omega$ under bright light.
+            </p>
+            <div id="step-formula-box" class="step-formula-box">
+              R_LDR = 500,000 × Lux^(-0.75) | λ_cutoff = hc / E_g = 512 nm
+            </div>
+          </div>
+
+          <div class="step-graphic-panel">
+            <svg id="step-visual-svg" class="step-visual-diagram" viewBox="0 0 260 140">
+              <!-- Dynamically updated by app.js -->
+            </svg>
+            <span id="step-graphic-caption" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.5rem;">
+              Photon Absorption & Free Carrier Generation
+            </span>
+          </div>
+        </div>
+
+        <!-- Controls Row -->
+        <div class="flow-controls-row">
+          <button id="btn-prev-step" class="btn-flow">← Previous Stage</button>
+          <span id="flow-status-text" style="font-size: 0.82rem; color: var(--text-secondary); font-family: var(--font-mono);">
+            Stage 1 / 5 Selected
+          </span>
+          <button id="btn-next-step" class="btn-flow">Next Stage →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 3: CIRCUIT DIAGRAM -->
+    <section id="circuit-diagram" class="glass-section page-section">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h2><span>🔌</span> Advanced Fritzing Hardware Circuit Diagram</h2>
+          <p>Complete MB-102 breadboard layout showing Arduino UNO R3, CdS photocell, 10kΩ pull-down resistor, 220Ω current limiter, 5mm luminaire LED, and curved color-coded jumper wiring.</p>
+        </div>
+        <a href="circuit.svg" target="_blank" class="btn-flow" style="font-size: 0.8rem;">
+          <span>🔍</span> Open Full Vector SVG
+        </a>
+      </div>
+
+      <div class="circuit-canvas-box">
+        <object id="circuit-svg-object" type="image/svg+xml" data="circuit.svg" style="width: 100%; height: auto; max-height: 580px; display: block;">
+          Your browser does not support SVG embedding. Please view circuit.svg directly.
+        </object>
+      </div>
+
+      <!-- Real Hardware Prototype & Custom PCB Showcase Gallery -->
+      <div class="hardware-showcase-container">
+        <div class="showcase-header">
+          <div class="showcase-title-group">
+            <span class="showcase-tag">LABORATORY PHOTO &amp; GERBER GALLERY</span>
+            <h3 class="showcase-title"><span>📷</span> Physical Breadboard Prototype &amp; Custom PCB Shield</h3>
+            <p class="showcase-desc">High-resolution laboratory workbench photography and custom double-sided PCB shield layout. Click either image to open interactive full-resolution zoom inspection.</p>
+          </div>
+          <div class="showcase-pills">
+            <span class="showcase-pill">⚡ 2 Macro Photos</span>
+            <span class="showcase-pill">🔬 4K UHD Clarity</span>
+          </div>
+        </div>
+
+        <div class="hardware-cards-grid">
+          <!-- Card 1: Physical Breadboard Setup -->
+          <div class="hardware-photo-card" onclick="openLightboxFromCard(this)" data-img="hardware_breadboard_setup.jpg" data-title="Laboratory Hardware Setup on MB-102 Breadboard" data-desc="Complete physical circuit showing Arduino UNO R3, 5mm CdS Photocell (LDR), 10kΩ pull-down resistor, 220Ω current limiter, 5mm LED luminaire, analog multimeter, and soldering station on the lab workbench.">
+            <div class="photo-img-wrapper">
+              <img src="hardware_breadboard_setup.jpg" alt="Physical Breadboard Circuit Prototype with Arduino UNO R3" loading="lazy" class="smooth-hardware-img">
+              <div class="photo-glow-effect"></div>
+              <div class="photo-zoom-badge"><span>🔍</span> Click to Inspect High-Res</div>
+            </div>
+            <div class="photo-card-body">
+              <div class="photo-meta-row">
+                <span class="photo-tag-pill tag-prototype">HARDWARE PROTOTYPE</span>
+                <span class="photo-spec">MB-102 • 830 Tie-Points</span>
+              </div>
+              <h4 class="photo-card-heading">MB-102 Breadboard Prototype &amp; Test Bench</h4>
+              <p class="photo-card-text">Physical wiring of the potential divider and luminaire circuit connected to an Arduino UNO R3 test bench with bench multimeter and tools.</p>
+            </div>
+          </div>
+
+          <!-- Card 2: Custom PCB Shield Layout -->
+          <div class="hardware-photo-card" onclick="openLightboxFromCard(this)" data-img="pcb_shield_layout.jpg" data-title="Custom Arduino UNO R3 PCB Shield Layout" data-desc="Production 2-layer FR-4 printed circuit board layout designed as a dedicated Arduino UNO R3 shield. Features 0805 SMD resistors, silk-screened pinouts, screw terminal blocks, and ground plane copper pour.">
+            <div class="photo-img-wrapper">
+              <img src="pcb_shield_layout.jpg" alt="Custom Double-Sided Arduino UNO PCB Shield Layout" loading="lazy" class="smooth-hardware-img">
+              <div class="photo-glow-effect"></div>
+              <div class="photo-zoom-badge"><span>🔍</span> Click to Inspect High-Res</div>
+            </div>
+            <div class="photo-card-body">
+              <div class="photo-meta-row">
+                <span class="photo-tag-pill tag-pcb">CUSTOM PCB GERBER</span>
+                <span class="photo-spec">FR-4 • 1.6mm Double-Sided</span>
+              </div>
+              <h4 class="photo-card-heading">Custom Arduino UNO R3 PCB Shield</h4>
+              <p class="photo-card-text">Engineered PCB shield with 0805 SMD resistors, screw terminal block connectors, isolated A0 sensor trace, and silkscreen pinouts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 4: FIRMWARE STUDIO -->
+    <section id="code-studio" class="glass-section page-section">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h2><span>💻</span> Arduino C++ Production Firmware Studio</h2>
+          <p>Deployable production firmware with rolling average filter and Schmitt-trigger hysteresis. Adjust thresholds on the right to see the code update dynamically.</p>
+        </div>
+        <button id="btn-copy-firmware" class="btn-copy-code">
+          <span>📋</span> Copy Arduino Sketch
+        </button>
+      </div>
+
+      <div class="code-studio-layout">
+        <!-- Code Viewer -->
+        <div class="code-viewer-box">
+          <div class="code-header-bar">
+            <div class="code-title-tab">
+              <span>📄</span> Automatic_Night_Light.ino
+            </div>
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">C++ / Wiring • Arduino UNO R3</span>
+          </div>
+          <pre id="code-display" class="code-block"><code><span class="c-cmt">/* Project Work: Automatic Night Light System (Ambient Light-Adaptive Luminaire)
+ * Connections: LDR -> A0 (10k Pull-Down) | 5mm LED -> Pin D9 (220 Ohm Resistor) | Baud: 9600 bps */</span>
+<span class="c-kw">const int</span> LDR_PIN = <span class="c-num">A0</span>;              <span class="c-cmt">// Analog input pin for LDR potential divider tap</span>
+<span class="c-kw">const int</span> LED_PIN = <span class="c-num">9</span>;               <span class="c-cmt">// Digital output pin for LED actuator</span>
+<span class="c-kw">const int</span> THRESHOLD_DARK  = <span id="code-tdark" class="c-num">400</span>;     <span class="c-cmt">// Lower hysteresis boundary (Nightfall -> Turn ON)</span>
+<span class="c-kw">const int</span> THRESHOLD_LIGHT = <span id="code-tlight" class="c-num">500</span>;     <span class="c-cmt">// Upper hysteresis boundary (Daybreak -> Turn OFF)</span>
+<span class="c-kw">const int</span> SAMPLES = <span class="c-num">10</span>;              <span class="c-cmt">// Rolling average window size</span>
+<span class="c-type">int</span> buffer[SAMPLES]; <span class="c-type">int</span> bufIdx = <span class="c-num">0</span>; <span class="c-type">long</span> runningSum = <span class="c-num">0</span>;
+<span class="c-type">bool</span> ledState = <span class="c-num">false</span>; <span class="c-type">unsigned long</span> lastLog = <span class="c-num">0</span>;
+
+<span class="c-kw">void</span> <span class="c-type">setup</span>() {
+  pinMode(LED_PIN, OUTPUT); digitalWrite(LED_PIN, LOW); <span class="c-cmt">// Initialize luminaire extinguished</span>
+  Serial.begin(<span class="c-num">9600</span>);
+  <span class="c-kw">for</span> (<span class="c-type">int</span> i = <span class="c-num">0</span>; i &lt; SAMPLES; i++) {
+    buffer[i] = analogRead(LDR_PIN); runningSum += buffer[i]; delay(<span class="c-num">5</span>);
+  }
+}
+
+<span class="c-kw">void</span> <span class="c-type">loop</span>() {
+  runningSum -= buffer[bufIdx];
+  buffer[bufIdx] = analogRead(LDR_PIN);
+  runningSum += buffer[bufIdx];
+  bufIdx = (bufIdx + <span class="c-num">1</span>) % SAMPLES;
+
+  <span class="c-type">int</span> filteredADC = runningSum / SAMPLES;
+  <span class="c-type">float</span> nodeV = (filteredADC * <span class="c-num">5.0</span>) / <span class="c-num">1023.0</span>;
+
+  <span class="c-cmt">// Dual-Threshold Schmitt Trigger Hysteresis Comparator</span>
+  <span class="c-kw">if</span> (filteredADC &lt;= THRESHOLD_DARK) {
+    ledState = <span class="c-num">true</span>;  digitalWrite(LED_PIN, HIGH);     <span class="c-cmt">// Darkness detected: Luminaire ON</span>
+  } <span class="c-kw">else if</span> (filteredADC &gt;= THRESHOLD_LIGHT) {
+    ledState = <span class="c-num">false</span>; digitalWrite(LED_PIN, LOW);      <span class="c-cmt">// Daylight restored: Luminaire OFF</span>
+  }
+
+  <span class="c-cmt">// Periodic Telemetry Reporting over UART Serial (Every 500 ms)</span>
+  <span class="c-kw">if</span> (millis() - lastLog &gt;= <span class="c-num">500</span>) {
+    lastLog = millis();
+    Serial.print(<span class="c-str">"ADC: "</span>); Serial.print(filteredADC);
+    Serial.print(<span class="c-str">" | V: "</span>); Serial.print(nodeV, <span class="c-num">2</span>);
+    Serial.print(<span class="c-str">"V | Luminaire: "</span>);
+    Serial.println(ledState ? <span class="c-str">"ACTIVE (ON)"</span> : <span class="c-str">"INACTIVE (OFF)"</span>);
+  }
+  delay(<span class="c-num">20</span>);
+}</code></pre>
+        </div>
+
+        <!-- Interactive Threshold Tuner -->
+        <div class="tuner-card">
+          <div class="tuner-header">
+            <h3>Hysteresis Threshold Tuner</h3>
+            <p>Customize the switching boundaries and observe immediate updates to the code.</p>
+          </div>
+
+          <div class="tuner-control-group">
+            <div class="tuner-label-row">
+              <span>Darkness Threshold (T_DARK)</span>
+              <span id="label-tdark" class="tuner-badge">400 (1.95 V)</span>
+            </div>
+            <input type="range" id="slider-tdark" class="lux-slider" min="150" max="450" value="400" step="5">
+          </div>
+
+          <div class="tuner-control-group">
+            <div class="tuner-label-row">
+              <span>Daylight Threshold (T_LIGHT)</span>
+              <span id="label-tlight" class="tuner-badge">500 (2.44 V)</span>
+            </div>
+            <input type="range" id="slider-tlight" class="lux-slider" min="460" max="750" value="500" step="5">
+          </div>
+
+          <div class="deadband-summary-box">
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">Deadband Width (Δ):</span>
+              <strong id="deadband-width-text" style="color:var(--accent-amber);">100 ADC Counts (0.49 V)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">Chatter Immunity:</span>
+              <strong style="color:var(--accent-emerald);">EXCELLENT</strong>
+            </div>
+          </div>
+
+          <button id="btn-reset-tuner" class="btn-flow" style="width: 100%; justify-content: center; font-size: 0.82rem;">
+            Reset Default (400 / 500)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 5: THEORY -->
+    <section id="theory" class="glass-section page-section">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h2><span>🔬</span> Comprehensive Theory & Mathematical Foundations</h2>
+          <p>Academic rigor covering semiconductor band theory, divider sensitivity derivation, ADC quantization metrics, and AC mains relay isolation.</p>
+        </div>
+      </div>
+
+      <div class="theory-grid">
+        <div class="theory-card">
+          <div class="theory-icon">☀️</div>
+          <h3>Photoconductive Physics in CdS</h3>
+          <p>
+            Cadmium Sulfide is an intrinsic II-VI direct bandgap semiconductor ($E_g = 2.42\,\text{eV}$). Optical absorption occurs when photon energy matches or exceeds this threshold:
+          </p>
+          <div class="step-formula-box">
+            λ_cutoff = hc / E_g ≈ 512 nm
+          </div>
+          <p>
+            Incident light creates electron-hole pairs, elevating carrier density $\Delta n = \eta G \tau$. Because electron mobility in CdS ($\mu_e \approx 250\,\text{cm}^2/\text{V}\cdot\text{s}$) exceeds hole mobility, conductivity $\sigma = q(n\mu_e + p\mu_p)$ spikes by up to 3 orders of magnitude.
+          </p>
+        </div>
+
+        <div class="theory-card">
+          <div class="theory-icon">⚡</div>
+          <h3>Potential Divider Sensitivity Optimization</h3>
+          <p>
+            The analog voltage $V_{\text{node}}$ tapped into pin A0 is governed by Ohm's potential division:
+          </p>
+          <div class="step-formula-box">
+            V_out = V_cc × [ R_fixed / (R_LDR + R_fixed) ]
+          </div>
+          <p>
+            Differentiating sensitivity $S = |dV_{\text{out}}/dR_{\text{LDR}}| = V_{\text{cc}} R_{\text{fixed}} / (R_{\text{LDR}} + R_{\text{fixed}})^2$ reveals maximum voltage swing occurs when $R_{\text{fixed}} \approx R_{\text{LDR}}$. For domestic dusk transitions ($20-100\,\text{lux}$), $R_{\text{LDR}} \approx 8-15\,\text{k}\Omega$, making $10\,\text{k}\Omega$ the optimal divider value.
+          </p>
+        </div>
+
+        <div class="theory-card">
+          <div class="theory-icon">📊</div>
+          <h3>10-Bit SAR ADC Quantization</h3>
+          <p>
+            The ATmega328P microcontroller utilizes a Successive Approximation Register (SAR) analog-to-digital converter operating at $125\,\text{kHz}$ with $13$ clock cycles per conversion ($104\,\mu\text{s}$ conversion time).
+          </p>
+          <div class="step-formula-box">
+            LSB = V_ref / 1024 = 5.0 V / 1024 = 4.8828 mV
+          </div>
+          <p>
+            A 10-sample rolling average boxcar filter suppresses high-frequency optical noise, mains $50\,\text{Hz}$ hum, and thermal drift without causing phase lag.
+          </p>
+        </div>
+
+        <div class="theory-card">
+          <div class="theory-icon">🔀</div>
+          <h3>Dual-Threshold Schmitt Hysteresis</h3>
+          <p>
+            Standard single-threshold comparators oscillate rapidly when ambient light hovers near the trip point. This design introduces a software Schmitt-trigger with upper and lower trip points:
+          </p>
+          <div class="step-formula-box">
+            Deadband Δ = T_LIGHT - T_DARK = 500 - 400 = 100 Counts (0.488 V)
+          </div>
+          <p>
+            When entering twilight from daylight, the light remains OFF until light drops to $35\,\text{lux}$ ($D \le 400$). When morning arrives, the light remains ON until light rises past $85\,\text{lux}$ ($D \ge 500$).
+          </p>
+        </div>
+
+        <div class="theory-card">
+          <div class="theory-icon">🔌</div>
+          <h3>AC Mains Relay & Optocoupler Interfacing</h3>
+          <p>
+            To actuate a $230\,\text{V}$ AC / $50\,\text{Hz}$ domestic lighting fixture, the low-voltage microcontroller output must be galvanically isolated using an electromechanical relay module or solid-state TRIAC.
+          </p>
+          <div class="step-formula-box">
+            Optoisolation: MOC3021 / PC817 (5000 V RMS Isolation)
+          </div>
+          <p>
+            A 2N2222 NPN transistor drives the relay coil ($70\,\text{mA}$), while a 1N4007 flyback diode clamps back-EMF inductive spikes ($V = -L \cdot di/dt$) that would otherwise destroy the Arduino port.
+          </p>
+        </div>
+
+        <div class="theory-card">
+          <div class="theory-icon">🌐</div>
+          <h3>IoT Cloud & Smart Grid Integration</h3>
+          <p>
+            The architecture readily extends to smart city street lighting grids by replacing or pairing the ATmega328P with an ESP32 or ESP8266 Wi-Fi transceiver publishing telemetry via MQTT to AWS IoT Core or ThingSpeak.
+          </p>
+          <div class="step-formula-box">
+            Protocol: MQTT over TLS (Port 8883) | Payload: JSON Telemetry
+          </div>
+          <p>
+            Enables remote fault detection, energy metering, burn-hour tracking, and predictive maintenance across thousands of municipal luminaire nodes.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 6: CALCULATOR -->
+    <section id="calculator" class="glass-section page-section">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h2><span>🧮</span> Interactive Voltage Divider & Sensitivity Calculator</h2>
+          <p>Experiment with custom circuit parameters to compute expected ADC values and node voltages.</p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+        <div class="control-card">
+          <span class="control-title">Supply Voltage (V_cc)</span>
+          <input type="number" id="calc-vcc" value="5.0" step="0.1" min="1.8" max="12.0" style="background:var(--code-bg); border:1px solid var(--border-highlight); color:var(--text-primary); padding:0.5rem; border-radius:4px; font-family:var(--font-mono);">
+        </div>
+
+        <div class="control-card">
+          <span class="control-title">Fixed Pull-Down Resistor (R_fixed)</span>
+          <input type="number" id="calc-rfixed" value="10000" step="500" min="100" max="100000" style="background:var(--code-bg); border:1px solid var(--border-highlight); color:var(--text-primary); padding:0.5rem; border-radius:4px; font-family:var(--font-mono);">
+          <span style="font-size:0.75rem; color:var(--text-muted);">Standard: 10,000 Ω (10k)</span>
+        </div>
+
+        <div class="control-card">
+          <span class="control-title">LDR Resistance (R_LDR)</span>
+          <input type="number" id="calc-rldr" value="15000" step="500" min="100" max="500000" style="background:var(--code-bg); border:1px solid var(--border-highlight); color:var(--text-primary); padding:0.5rem; border-radius:4px; font-family:var(--font-mono);">
+          <span style="font-size:0.75rem; color:var(--text-muted);">Typical dusk: 15,000 Ω (15k)</span>
+        </div>
+
+        <div class="control-card" style="background:var(--bg-primary); border-color:var(--accent-cyan);">
+          <span class="control-title" style="color:var(--accent-cyan);">Calculated Output</span>
+          <div style="font-size:1.4rem; font-weight:800; font-family:var(--font-mono); color:var(--text-primary);" id="calc-result-v">2.00 V</div>
+          <div style="font-size:0.9rem; font-family:var(--font-mono); color:var(--accent-amber);" id="calc-result-adc">ADC: 409 Counts</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 7: BOM & COST -->
+    <section id="bom-section" class="glass-section page-section">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h2><span>📦</span> Bill of Materials (BOM) & Component Sourcing</h2>
+          <p>Complete laboratory component catalog with part IDs, technical specifications, and exact Indian Rupee (₹) pricing matching the project report.</p>
+        </div>
+      </div>
+
+      <!-- Amazon Quick Sourcing Banner -->
+      <div class="amazon-banner-box">
+        <div class="amazon-banner-text">
+          <h3><span>🛒</span> Procure Components Online via Amazon India</h3>
+          <p>Click individual component sourcing links below or order an all-in-one Arduino R3 starter bundle.</p>
+        </div>
+        <a href="https://www.amazon.in/s?k=arduino+uno+r3+starter+kit+with+breadboard+and+sensors" target="_blank" rel="noopener noreferrer" class="btn-amazon-large">
+          <span>📦</span> 1-Click Buy Lab Kit on Amazon.in
+        </a>
+      </div>
+
+      <div class="table-responsive-wrapper">
+        <table class="bom-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Component Name</th>
+              <th>Part / Model ID</th>
+              <th>Key Technical Specification</th>
+              <th>Qty</th>
+              <th>Unit Cost (₹)</th>
+              <th>Total Cost (₹)</th>
+              <th>Sourcing Link (Amazon India)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Arduino UNO R3 Development Board</td>
+              <td><code>A000066 / DIP-28</code></td>
+              <td>ATmega328P MCU, 16MHz, 5V, 14 Digital / 6 Analog Pins</td>
+              <td>1</td>
+              <td>₹480.00</td>
+              <td>₹480.00</td>
+              <td><a href="https://www.amazon.in/s?k=Arduino+Uno+R3+board" target="_blank" rel="noopener noreferrer" class="btn-amazon"><span>🛒</span> Buy on Amazon.in</a></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Cadmium Sulfide (CdS) LDR Sensor</td>
+              <td><code>GL5528 / VT90N2</code></td>
+              <td>5mm Dia, 10–20kΩ @ 10 lux, 1MΩ dark resistance</td>
+              <td>1</td>
+              <td>₹15.00</td>
+              <td>₹15.00</td>
+              <td><a href="https://www.amazon.in/s?k=GL5528+LDR+photoresistor+5mm" target="_blank" rel="noopener noreferrer" class="btn-amazon"><span>🛒</span> Buy on Amazon.in</a></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Fixed Carbon Film Pull-Down Resistor</td>
+              <td><code>CFR-25JR-10K</code></td>
+              <td>10 kΩ, 0.25W (1/4W), ±5% tolerance (Brown-Black-Orange)</td>
+              <td>1</td>
+              <td>₹2.00</td>
+              <td>₹2.00</td>
+              <td><a href="https://www.amazon.in/s?k=10k+ohm+resistor+quarter+watt" target="_blank" rel="noopener noreferrer" class="btn-amazon"><span>🛒</span> Buy on Amazon.in</a></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Current-Limiting Actuator Resistor</td>
+              <td><code>CFR-25JR-220R</code></td>
+              <td>220 Ω, 0.25W (1/4W), ±5% tolerance (Red-Red-Brown)</td>
+              <td>1</td>
+              <td>₹2.00</td>
+              <td>₹2.00</td>
+              <td><a href="https://www.amazon.in/s?k=220+ohm+resistor+quarter+watt" target="_blank" rel="noopener noreferrer" class="btn-amazon"><span>🛒</span> Buy on Amazon.in</a></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Diffused Red Luminaire Indicator LED</td>
+              <td><code>WP7113ID</code></td>
+              <td>5mm Round, Vf = 2.0V, If = 20mA max, 625nm wavelength</td>
+              <td>1</td>
+              <td>₹5.00</td>
+              <td>₹5.00</td>
+              <td><a href="https://www.amazon.in/s?k=5mm+red+diffused+led" target="_blank" rel="noopener noreferrer" class="btn-amazon"><span>🛒</span> Buy on Amazon.in</a></td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>Solderless Breadboard</td>
+              <td><code>MB-102 (Half/Full)</code></td>
+              <td>400 / 830 Tie-Points, 2 Power Distribution Rails, 0.1" pitch</td>
+              <td>1</td>
+              <td>₹95.00</td>
+              <td>₹95.00</td>
+              <td><a href="https://www.amazon.in/s?k=MB102+breadboard+830+points" target="_blank" rel="noopener noreferrer" class="btn-amazon"><span>🛒</span> Buy on Amazon.in</a></td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>Premium Male-to-Male Jumper Wires</td>
+              <td><code>M2M-JMP-20CM</code></td>
+              <td>24 AWG tinned copper core, multi-colored insulated pack</td>
+              <td>6</td>
+              <td>₹4.50</td>
+              <td>₹27.00</td>
+              <td><a href="https://www.amazon.in/s?k=male+to+male+jumper+wires+arduino" target="_blank" rel="noopener noreferrer" class="btn-amazon"><span>🛒</span> Buy on Amazon.in</a></td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td>USB 2.0 Type-A to Type-B Cable</td>
+              <td><code>USB-AB-1M-BL</code></td>
+              <td>1.0 Meter, High-Speed Data & 5V Power Programming Cable</td>
+              <td>1</td>
+              <td>₹50.00</td>
+              <td>₹50.00</td>
+              <td><a href="https://www.amazon.in/s?k=arduino+uno+usb+cable+type+a+to+b" target="_blank" rel="noopener noreferrer" class="btn-amazon"><span>🛒</span> Buy on Amazon.in</a></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="7" style="text-align: right;">TOTAL ESTIMATED HARDWARE BOM COST:</td>
+              <td>₹676.00</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- PAGE 8: VIVA-VOCE -->
+    <section id="viva-section" class="glass-section page-section">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h2><span>🎓</span> Viva-Voce Technical Exam Preparation & Flashcards</h2>
+          <p>20 exhaustive oral examination questions and in-depth engineering answers covering physics, circuit design, firmware algorithms, and industrial interfacing. All answers are shown by default for study.</p>
+        </div>
+      </div>
+
+      <!-- Filter Buttons -->
+      <div class="quiz-category-filter">
+        <button class="btn-filter active" data-filter="all">All Questions (20)</button>
+        <button class="btn-filter" data-filter="physics">Physics & Transduction (4)</button>
+        <button class="btn-filter" data-filter="circuit">Hardware & Circuitry (6)</button>
+        <button class="btn-filter" data-filter="firmware">Firmware & Math (5)</button>
+        <button class="btn-filter" data-filter="power">AC Mains & IoT Systems (5)</button>
+      </div>
+
+      <!-- Flashcards Grid -->
+      <div id="viva-grid" class="viva-cards-grid">
+        <!-- Generated by app.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Toast Notification -->
+  <div id="toast" class="toast-notice">
+    <span>✅</span>
+    <span id="toast-message">Code successfully copied to clipboard!</span>
+  </div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <p><strong>Department of Computer Science & Engineering / Information Technology</strong></p>
+    <p>Microcontroller Laboratory • Automatic Night Light System (Ambient Light-Adaptive Luminaire Automation)</p>
+    <p style="font-size: 0.78rem; margin-top: 0.5rem; color: var(--text-muted);">
+      Compliant with ATmega328P Hardware Specifications • Production C++ Firmware • Single-Page LaTeX Handout Ready
+    </p>
+  </footer>
+
+  <!-- High-Res Image Inspection Lightbox Modal -->
+  <div id="image-lightbox-modal" class="lightbox-modal" style="display: none;">
+    <div class="lightbox-backdrop" id="lightbox-backdrop" onclick="closeLightboxModal()"></div>
+    <div class="lightbox-dialog">
+      <button class="lightbox-close-btn" id="lightbox-close-btn" onclick="closeLightboxModal()" aria-label="Close Preview">✕</button>
+      <div class="lightbox-img-box">
+        <img id="lightbox-img" src="" alt="Enlarged Engineering Preview" class="lightbox-img">
+      </div>
+      <div class="lightbox-info-box">
+        <h4 id="lightbox-title">Image Title</h4>
+        <p id="lightbox-desc">Detailed engineering description...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

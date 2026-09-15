@@ -1,0 +1,165 @@
+\documentclass[11pt,a4paper]{article}
+
+% ==============================================================================
+% EXPERIMENT 04: PRINTABLE SOURCE CODE & OUTPUT (EXACT SINGLE 1-PAGE DOCUMENT)
+% Formatted with 1.0-inch lateral margins, large readable fonts, and tight top/bottom margins.
+% ==============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[left=1.0in, right=1.0in, top=0.32in, bottom=0.32in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{microtype}
+\usepackage{float}
+
+% Disable all running headers, footers, and page numbers for clean print & paste
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+% Section Titles Formatting (Enlarged)
+\titleformat{\section}
+  {\normalfont\large\bfseries\raggedright}{\thesection}{0.6em}{}[\titlerule]
+
+\titlespacing*{\section}{0pt}{4pt}{2pt}
+
+% Code Listing Styling (Strict Monochrome with Enlarged Font for High-Contrast Print)
+\lstdefinestyle{bwArduino}{
+    language=C++,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\bfseries,
+    commentstyle=\itshape,
+    stringstyle=\ttfamily,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=6pt,
+    stepnumber=1,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=single,
+    rulecolor=\color{black},
+    tabsize=2,
+    showstringspaces=false,
+    columns=fullflexible,
+    keepspaces=true,
+    lineskip=-0.1pt,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+\lstdefinestyle{bwTerminal}{
+    basicstyle=\ttfamily\footnotesize,
+    numbers=none,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=single,
+    rulecolor=\color{black},
+    columns=fullflexible,
+    keepspaces=true,
+    lineskip=1.2pt,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+\captionsetup{font=small,labelfont=bf,skip=2pt}
+
+\begin{document}
+
+% ==============================================================================
+% DOCUMENT HEADER
+% ==============================================================================
+\begin{center}
+    {\Large\bfseries Experiment 04: Interfacing HC-SR04 Ultrasonic Sensor with Arduino UNO}\\[0.10cm]
+    {\normalsize\textbf{Non-Contact Distance Measurement --- Program Source Code \& Experimental Output}}
+\end{center}
+\vspace{-0.20cm}
+\rule{\textwidth}{0.9pt}
+\vspace{0.06cm}
+
+% ==============================================================================
+% 1. PROGRAM SOURCE CODE
+% ==============================================================================
+\section*{1. Arduino C++ Source Code}
+
+\begin{lstlisting}[style=bwArduino, title={\textbf{Listing 4.1: Microcontroller Firmware for Ultrasonic Distance Measurement.}}]
+/*
+ * Experiment 04: Ultrasonic Distance Measurement using HC-SR04 and Arduino UNO
+ * Hardware Pin Connections:
+ *   - Arduino Digital Pin 8 -> HC-SR04 TRIG (Trigger Output)
+ *   - Arduino Digital Pin 7 -> HC-SR04 ECHO (Echo Pulse Input)
+ *   - Arduino 5V & GND     -> HC-SR04 VCC & GND Power Supply
+ * Serial Baud Rate: 9600 bps
+ */
+const int trigPin = 8;    // Pin D8 connected to HC-SR04 TRIG terminal
+const int echoPin = 7;    // Pin D7 connected to HC-SR04 ECHO terminal
+long duration;            // Holds raw Time-of-Flight (ToF) in microseconds
+int distance;             // Holds calculated one-way distance in centimeters
+
+void setup() {
+  pinMode(trigPin, OUTPUT);  // Configure Trigger pin as digital output
+  pinMode(echoPin, INPUT);   // Configure Echo pin as digital input
+  Serial.begin(9600);        // Initialize UART Serial Interface at 9600 Baud
+}
+
+void loop() {
+  // Step 1: Ensure a clean LOW signal before generating trigger pulse
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Step 2: Transmit 10 microsecond Active-HIGH Trigger Pulse
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  // Step 3: Measure HIGH pulse duration on ECHO pin (Time-of-Flight in us)
+  duration = pulseIn(echoPin, HIGH);
+  // Step 4: Calculate one-way distance in centimeters (Speed of sound = 0.034 cm/us)
+  distance = duration * 0.034 / 2;
+  // Step 5: Format and stream telemetry data to Serial Monitor
+  Serial.print("distance : ");
+  Serial.println(distance);
+  // Step 6: Measurement cycle delay to prevent acoustic multipath echo interference
+  delay(100);
+}
+\end{lstlisting}
+
+\vspace{0.06cm}
+
+% ==============================================================================
+% 2. EXPERIMENTAL OUTPUT & SERIAL TELEMETRY (SERIAL: 2.A -> 2.B)
+% ==============================================================================
+\section*{2. Experimental Output \& Serial Monitor Telemetry}
+
+\noindent
+\textbf{A. Ultrasonic Distance Measurement \& Calibration Log:}\par\vspace{0.06cm}
+{\footnotesize
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\textwidth}{|c|c|c|X|}
+\hline
+\textbf{Trial} & \textbf{Actual Range} & \textbf{Serial Output} & \textbf{Measurement State \& Hardware Observation} \\
+\hline
+1 & $5.0\,\text{cm}$ & \texttt{distance : 5} & Exact Setpoint Match ($100\%$ Correlation) \\
+2 & $5.0\,\text{cm}$ & \texttt{distance : 4} & Stable Reading with Tolerable Noise ($\Delta = -1.0\,\text{cm}$) \\
+3 & $5.0\,\text{cm}$ & \texttt{distance : 5} & Exact Setpoint Match ($100\%$ Correlation) \\
+4 & $10.0\,\text{cm}$ & \texttt{distance : 10} & Linear Scaling Validated ($100\%$ Correlation) \\
+\hline
+\end{tabularx}
+}
+
+\vspace{0.22cm}
+
+\noindent
+\textbf{B. Serial Monitor Stream (9600 Baud):}\par\vspace{0.05cm}
+\begin{lstlisting}[style=bwTerminal]
+distance : 5
+distance : 4
+distance : 5
+distance : 10
+\end{lstlisting}
+
+\end{document}

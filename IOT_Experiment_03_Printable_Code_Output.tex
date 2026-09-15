@@ -1,0 +1,179 @@
+\documentclass[10pt,a4paper]{article}
+
+% ==============================================================================
+% EXPERIMENT 03: PRINTABLE SOURCE CODE & OUTPUT (EXACT SINGLE 1-PAGE DOCUMENT)
+% Formatted with 1.0-inch lateral margins, large readable fonts, and tight top/bottom margins.
+% ==============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[left=1.0in, right=1.0in, top=0.35in, bottom=0.35in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{microtype}
+\usepackage{float}
+
+% Disable all running headers, footers, and page numbers for clean print & paste
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+% Section Titles Formatting (Enlarged)
+\titleformat{\section}
+  {\normalfont\normalsize\bfseries\raggedright}{\thesection}{0.5em}{}[\titlerule]
+
+\titlespacing*{\section}{0pt}{5pt}{2pt}
+
+% Code Listing Styling (Strict Monochrome with Enlarged Font for High-Contrast Print)
+\lstdefinestyle{bwArduino}{
+    language=C++,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\bfseries,
+    commentstyle=\itshape,
+    stringstyle=\ttfamily,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    stepnumber=1,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=single,
+    rulecolor=\color{black},
+    tabsize=2,
+    showstringspaces=false,
+    columns=fullflexible,
+    keepspaces=true,
+    lineskip=-0.4pt,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+\lstdefinestyle{bwTerminal}{
+    basicstyle=\ttfamily\scriptsize,
+    numbers=none,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=single,
+    rulecolor=\color{black},
+    columns=fullflexible,
+    keepspaces=true,
+    lineskip=0.0pt,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+\captionsetup{font=footnotesize,labelfont=bf,skip=2pt}
+
+\begin{document}
+
+% ==============================================================================
+% DOCUMENT HEADER
+% ==============================================================================
+\begin{center}
+    {\large\bfseries Experiment 03: Interfacing DHT11 Sensor with Arduino UNO}\\[0.06cm]
+    {\normalsize\textbf{Environmental Telemetry \& Alert Actuation --- Program Source Code \& Experimental Output}}
+\end{center}
+\vspace{-0.24cm}
+\rule{\textwidth}{0.8pt}
+\vspace{0.06cm}
+
+% ==============================================================================
+% 1. PROGRAM SOURCE CODE
+% ==============================================================================
+\section*{1. Arduino C++ Source Code}
+
+\begin{lstlisting}[style=bwArduino, title={\textbf{Listing 3.1: Microcontroller Firmware for DHT11 Telemetry and Closed-Loop Alert Actuation.}}]
+/*
+ * Experiment 03: DHT11 Sensor Interfacing with Closed-Loop High-Temp Alert
+ * Pin Connections: DHT11 DATA -> Pin 7 | Alert Red LED -> Pin 8 | 5V & GND -> Power
+ * Alarm Trigger Threshold: 30.0 deg C (Adjustable setpoint)
+ */
+#include <DHT.h>
+
+#define DHTPIN 7            // DHT11 DATA connected to Digital Pin 7
+#define DHTTYPE DHT11       // Sensor model designation
+#define ALERT_PIN 8         // Red Alert LED connected to Digital Pin 8
+#define TEMP_THRESHOLD 30.0 // Closed-loop alarm trigger setpoint in Celsius
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(ALERT_PIN, OUTPUT);
+  digitalWrite(ALERT_PIN, LOW); // Initialize alert LED to OFF
+  dht.begin();
+  Serial.println("=================================================");
+  Serial.println("   IoT Lab: DHT11 Telemetry & Alert System       ");
+  Serial.println("=================================================");
+  Serial.println("Time(s)\tHumidity(%)\tTemp(C)\tAlert Status");
+}
+
+void loop() {
+  delay(2000); // DHT11 1 Hz sampling rate constraint (2.0s polling interval)
+  float humidity = dht.readHumidity();
+  float temperature = dht.readTemperature();
+
+  // Validate sensor readout frame
+  if (isnan(humidity) || isnan(temperature)) {
+    Serial.println("ERROR: Failed to read from DHT11 sensor!");
+    return;
+  }
+  // Closed-Loop Threshold Comparison Logic
+  bool isAlert = (temperature >= TEMP_THRESHOLD);
+  digitalWrite(ALERT_PIN, isAlert ? HIGH : LOW);
+
+  // Stream formatted telemetry to Serial Monitor
+  Serial.print(millis() / 1000);
+  Serial.print(" s\t");
+  Serial.print(humidity, 1);
+  Serial.print(" %\t\t");
+  Serial.print(temperature, 1);
+  Serial.print(" C\t");
+  Serial.println(isAlert ? "ACTIVE [ALERT ON]" : "NORMAL [OFF]");
+}
+\end{lstlisting}
+
+\vspace{0.06cm}
+
+% ==============================================================================
+% 2. EXPERIMENTAL OUTPUT & SERIAL TELEMETRY (SERIAL: 2.A -> 2.B)
+% ==============================================================================
+\section*{2. Experimental Output \& Serial Monitor Telemetry}
+
+\noindent
+\textbf{A. Temperature \& Humidity Measurement Matrix:}\par\vspace{0.06cm}
+{\footnotesize
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\textwidth}{|c|p{4.2cm}|c|c|X|}
+\hline
+\textbf{\#} & \textbf{Thermal Specimen State} & \textbf{Temperature} & \textbf{Humidity} & \textbf{Actuator Alert State} \\
+\hline
+1 & Ambient Laboratory Air & $27.4^\circ\text{C}$ & $62.0\%$ & \textbf{OFF} (Temperature Below Setpoint) \\
+2 & Ambient Laboratory Air & $28.1^\circ\text{C}$ & $60.5\%$ & \textbf{OFF} (Temperature Below Setpoint) \\
+3 & Heated Thermal Transit & $31.8^\circ\text{C}$ & $74.0\%$ & \textbf{ON} (\textbf{High-Temp Alert Triggered}) \\
+4 & Peak Heated State & $34.0^\circ\text{C}$ & $86.0\%$ & \textbf{ON} (\textbf{High-Temp Alert Triggered}) \\
+5 & Stabilized Baseline & $28.5^\circ\text{C}$ & $65.0\%$ & \textbf{OFF} (Normalized Below $30^\circ\text{C}$) \\
+\hline
+\end{tabularx}
+}
+
+\vspace{0.22cm}
+
+\noindent
+\textbf{B. Serial Monitor Stream (9600 Baud):}\par\vspace{0.05cm}
+\begin{lstlisting}[style=bwTerminal]
+Time(s)    Humidity(%)    Temp(C)    Alert Status
+2 s        62.0 %         27.4 C     NORMAL [OFF]
+4 s        60.5 %         28.1 C     NORMAL [OFF]
+6 s        74.0 %         31.8 C     ACTIVE [ALERT ON]
+8 s        86.0 %         34.0 C     ACTIVE [ALERT ON]
+10 s       65.0 %         28.5 C     NORMAL [OFF]
+\end{lstlisting}
+
+\end{document}

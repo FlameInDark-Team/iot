@@ -1,0 +1,22 @@
+# LaTeX Auxiliary and Log Files
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.fls
+*.fdb_latexmk
+
+# Vercel Deployment Artifacts
+.vercel
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node Modules (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
